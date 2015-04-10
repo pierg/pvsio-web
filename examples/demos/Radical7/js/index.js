@@ -20,6 +20,17 @@ require.config({
 
 require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "widgets/TripleDisplay", "widgets/LED", "widgets/CursoredDisplay", "plugins/graphbuilder/GraphBuilder", "stateParser", "PVSioWebClient"], function (Button, SingleDisplay, DoubleDisplay, TripleDisplay, LED, CursoredDisplay, GraphBuilder, stateParser, PVSioWebClient) {
     "use strict";
+
+
+    /*
+     * Websocket used to communicate with SAPERE
+     */
+    var sapere_websocket;
+
+    /*
+     * It indicates the state of the socket (the one connecting to Sapere)
+     */
+    var socketClosed;
     
     var d3 = require("d3/d3");
 
@@ -36,6 +47,9 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
     
     var content = imageHolder.append("div").style("position", "absolute").style("top", "0px").style("left", "600px")
 					.style("height", "460px").style("width", "400px").attr("class", "dbg");
+
+    content = imageHolder.append("div").style("position", "absolute").style("top", "40px").style("left", "850px")
+        .style("height", "460px").style("width", "400px").attr("id", "sapere_response_log").attr("class", "dbg");
         
     //append a div that will contain the canvas elements
 
@@ -101,6 +115,9 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             client.getWebSocket().lastState(event.data);
             var dbg = prettyprintState(event.data.toString());
             d3.select(".dbg").node().innerHTML = new Date() + "<br>" + dbg.split("\n").join("<br>") + "<br><br>" + d3.select(".dbg").node().innerHTML;
+
+            sapere_websocket.send(dbg);
+
             var res = event.data.toString();
             if (res.indexOf("(#") === 0) {
                 res = stateParser.parse(event.data.toString());
@@ -115,7 +132,93 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
 		client.getWebSocket()
             .sendGuiAction("click_btn_on(" + client.getWebSocket().lastState() + ");", onMessageReceived);
     });
-    
+
+
+
+
+    /**
+     * @function logOnDiv
+     * @description Utility function, sends messages to different div elements in the html page
+     * @memberof module:Pacemaker-Simulink
+     */
+    function logOnDiv(msg, logger) {
+        var newP = document.createElement("p");
+        newP.innerHTML = msg;
+        var node = document.getElementById(logger);
+        node.appendChild(newP);
+        node.scrollTop = node.scrollHeight;
+        //$("#" + logger).animate({ scrollTop: $("#" + logger)[0].scrollHeight}, 500);
+    }
+
+
+    /**
+     * @function connectSapere
+     * @description Called when clicking the button 'Connect' on the web page.
+     * It connects to the Sapere middleware through a new WebSocket.
+     * It takes the address from the corresponding field in the html page.
+     * @memberof module:Pacemaker-Sapere
+     */
+    var connectSapere = function () {
+        /*
+         * If websocket is supported by the browser
+         */
+        if (window.hasOwnProperty('WebSocket')) {
+            //var location = document.getElementById('ControllerAddress').value + ':8026';
+            //logOnDiv('Trying to estrablish connection with controller at ' + location, 'orchestrator');
+            logOnDiv('Trying to estrablish connection with controller at ' + "localhost:8026/websockets/alaris", 'sapere_response_log');
+            //sapere_websocket = new WebSocket('ws://' + location, 'websockets');
+            sapere_websocket = new WebSocket('ws://localhost:8026/websockets/radical');
+
+            /*
+             * It starts the control process that send the information to Sapere
+             */
+            sapere_websocket.onopen = function () {
+                socketClosed = false;
+                //logOnDiv('Controller connected', 'orchestrator');
+                logOnDiv('Controller connected', 'sapere_response_log');
+                //startSensingPacing();
+            };
+            /*
+             * Receive event
+             */
+            sapere_websocket.onmessage = function (evt) {
+                onMessageReceivedSapere(evt);
+            };
+            /*
+             * Close event
+             */
+            sapere_websocket.onclose = function () {
+                socketClosed = true;
+                //logOnDiv('Controller disconnected', 'orchestrator');
+                logOnDiv('Controller disconnected', 'sapere_response_log');
+                stop_sensing_pacing();
+            };
+        } else {
+            /*
+             * The browser doesn't support WebSocket
+             */
+            alert('WebSocket NOT supported by your Browser!');
+        }
+    };
+
+    /**
+     * @function onMessageReceivedSapere
+     * @description Callback function of sapere websocket <br>
+     * Parse the data sent from Sapere and send it to PVS in order to process it
+     * @memberof module:Pacemaker-Sapere
+     */
+    function onMessageReceivedSapere(evt) {
+        //var message_received = prettyprintReceivedData(evt.data);
+        var message_received = evt.data;
+        console.log('Message received from Sapere: ' + message_received);
+        logOnDiv('<-RECEIVED<br>' + message_received, 'sapere_response_log');
+        if (!socketClosed) {
+            //pvsio_websocket.sendGuiAction('alaris_tick(10)( ' + message_received + ' )( ' + prettyprintPVSioOutput(pvsio_websocket.lastState()) + ' );', onMessageReceivedPVSio);
+            //logOnDiv('  <<<<<<<<<<<<<<<<    SENT TO PVSio                   ' + '<' + 'br>' + 'alaris_tick(10)( ' + message_received + ' )( ' + prettyprintPVSioOutput(pvsio_websocket.lastState()) + ' );', 'orchestrator');
+        }
+    }
+
+
     // TODO: need to understand how to use Buttons
 //    var btn_on = new Button("btn_on");
 //    btn_on.recallRate(250);
@@ -134,6 +237,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             client.getWebSocket().sendGuiAction("init(0);", onMessageReceived);
 			d3.select(".demo-splash").style("display", "none");
             d3.select(".content").style("display", "block");
+            connectSapere();
 		});
 	}).addListener("WebSocketConnectionClosed", function (e) {
 		console.log("web socket closed");
