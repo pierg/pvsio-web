@@ -48,10 +48,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
     var content = imageHolder.append("div").style("position", "absolute").style("top", "0px").style("left", "600px")
 					.style("height", "460px").style("width", "400px").attr("class", "dbg");
 
-    content = imageHolder.append("div").style("position", "absolute").style("top", "40px").style("left", "850px")
-        .style("height", "460px").style("width", "400px").attr("id", "sapere_response_log").attr("class", "dbg");
-        
-    //append a div that will contain the canvas elements
+    ////append a div that will contain the canvas elements
 
     var w = 120, h = 20;
 
@@ -148,6 +145,38 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
         //$("#" + logger).animate({ scrollTop: $("#" + logger)[0].scrollHeight}, 500);
     }
 
+    /**
+     * @function enable_button
+     * @description Binding user interface buttons, in this case there is only the connect button.
+     * @memberof module:Pacemaker-Simulink
+     */
+    function enableAddButton() {
+        logOnDiv('Button enabled', 'sapere_response_log');
+        d3.select('.btnAddDevice').on('click', function () {
+            logOnDiv('Adding Device', 'sapere_response_log');
+            var DeviceAction = {
+                action: "add",
+                name: "Radical",
+                type: "Monitor",
+                description: "Radical monitor description"
+            };
+            sapere_websocket.send(JSON.stringify(DeviceAction));
+        });
+
+        d3.select('.btnUpdateDevice').on('click', function () {
+
+            var message = document.getElementById('updateMessage').value;
+
+            logOnDiv('Sending Message '+ message, 'sapere_response_log');
+            var DeviceAction = {
+                action: "update",
+                deviceID: "Radical",
+                message: message,
+            };
+            sapere_websocket.send(JSON.stringify(DeviceAction));
+        });
+    }
+
 
     /**
      * @function connectSapere
@@ -165,7 +194,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             //logOnDiv('Trying to estrablish connection with controller at ' + location, 'orchestrator');
             logOnDiv('Trying to estrablish connection with controller at ' + "localhost:8026/websockets/alaris", 'sapere_response_log');
             //sapere_websocket = new WebSocket('ws://' + location, 'websockets');
-            sapere_websocket = new WebSocket('ws://localhost:8026/websockets/radical');
+            sapere_websocket = new WebSocket('ws://localhost:8080/websocket/actions');
 
             /*
              * It starts the control process that send the information to Sapere
@@ -175,6 +204,9 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
                 //logOnDiv('Controller connected', 'orchestrator');
                 logOnDiv('Controller connected', 'sapere_response_log');
                 //startSensingPacing();
+
+                enableAddButton();
+
             };
             /*
              * Receive event

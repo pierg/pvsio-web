@@ -10,6 +10,11 @@
         <link href="../../client/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <link href="../../client/app/plugins/graphbuilder/graph.css" rel="stylesheet" type="text/css"/>
         <link href="../../client/css/style.css" rel="stylesheet" type="text/css"/>
+
+        <link href="css/style.css" rel="stylesheet" type="text/css"/>
+        <link href="css/960.css" rel="stylesheet" type="text/css"/>
+
+
         <style>
             area {
                 cursor:pointer;
@@ -31,7 +36,17 @@
         <map name="prototypeMap" id="prototypeMap">
 	    <area class="btn_on" shape="rect" coords="368,110,386,134" href="#!">
         </map>
-		<script type="application/javascript" src="../../client/lib/promise-0.1.1.js"></script>
+        <input type="button" class="btnAddDevice" value="AddDevice" style="margin-left: 50px;"/><br/>
+
+        <input type="text" name="address" value="Message" id="updateMessage" style="margin-left: 50px;"/>
+
+        <input type="button" class="btnUpdateDevice" value="SendMessage!"/><br/>
+
+        <div class="grid_6">
+            <div id="sapere_response_log" class="console_log">
+            </div>
+        </div>
+        <script type="application/javascript" src="../../client/lib/promise-0.1.1.js"></script>
 		<script type="text/javascript" src="../../client/lib/jquery.js"></script>
 		<script type="text/javascript" src="../../client/lib/underscore/underscore.js"></script>
 		<script type="text/javascript" src="../../client/lib/backbone.js"></script>

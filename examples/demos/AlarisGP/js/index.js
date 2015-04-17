@@ -298,7 +298,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             //logOnDiv('Trying to estrablish connection with controller at ' + location, 'orchestrator');
             logOnDiv('Trying to estrablish connection with controller at ' + "localhost:8026/websockets/alaris", 'sapere_response_log');
             //sapere_websocket = new WebSocket('ws://' + location, 'websockets');
-            sapere_websocket = new WebSocket('ws://localhost:8025/websockets/alaris');
+            sapere_websocket = new WebSocket('ws://localhost:8080/websocket/actions');
 
             /*
              * It starts the control process that send the information to Sapere
@@ -307,7 +307,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
                 socketClosed = false;
                 //logOnDiv('Controller connected', 'orchestrator');
                 logOnDiv('Controller connected', 'sapere_response_log');
-                //startSensingPacing();
+                enableAddButton();
             };
             /*
              * Receive event
@@ -348,9 +348,28 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             //logOnDiv('  <<<<<<<<<<<<<<<<    SENT TO PVSio                   ' + '<' + 'br>' + 'alaris_tick(10)( ' + message_received + ' )( ' + prettyprintPVSioOutput(pvsio_websocket.lastState()) + ' );', 'orchestrator');
         }
     }
-    
-    
-    
+
+
+    /**
+     * @function enable_button
+     * @description Binding user interface buttons, in this case there is only the connect button.
+     * @memberof module:Pacemaker-Simulink
+     */
+    function enableAddButton() {
+        logOnDiv('Button enabled', 'sapere_response_log');
+        d3.select('.btnAddDevice').on('click', function () {
+            logOnDiv('Adding Device', 'sapere_response_log');
+            var DeviceAction = {
+                action: "add",
+                name: "Alaris",
+                type: "Pump",
+                description: "Alaris pump description"
+            };
+            sapere_websocket.send(JSON.stringify(DeviceAction));
+        });
+    }
+
+
     /**
         function to handle when an output has been received from the server after sending a guiAction
         if the first parameter is truthy, then an error occured in the process of evaluating the gui action sent
