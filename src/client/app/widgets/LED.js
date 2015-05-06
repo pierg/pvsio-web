@@ -20,7 +20,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-//    var d3 = require("d3/d3");
+    var d3 = require("d3/d3");
 //    var black, white;
 
     /**

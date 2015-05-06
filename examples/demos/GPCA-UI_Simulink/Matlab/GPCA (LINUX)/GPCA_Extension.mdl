@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.436"
+    ComputedModelVersion    "1.437"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -27,11 +27,11 @@ Model {
   Creator		  "Yi Zhang"
   UpdateHistory		  "UpdateHistoryNever"
   ModifiedByFormat	  "%<Auto>"
-  LastModifiedBy	  "paolo"
+  LastModifiedBy	  "chimed"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Mar 16 18:14:11 2015"
-  RTWModifiedTimeStamp	  348430449
-  ModelVersionFormat	  "1.%<AutoIncrement:436>"
+  LastModifiedDate	  "Fri Mar 27 16:20:17 2015"
+  RTWModifiedTimeStamp	  349373992
+  ModelVersionFormat	  "1.%<AutoIncrement:437>"
   ConfigurationManager	  "None"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
@@ -932,7 +932,7 @@ Model {
   }
   System {
     Name		    "GPCA_Extension"
-    Location		    [65, 81, 1366, 768]
+    Location		    [65, 81, 1280, 768]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -946,7 +946,7 @@ Model {
     ShowPageBoundaries	    off
     ZoomFactor		    "40"
     ReportName		    "simulink-default.rpt"
-    SIDHighWatermark	    "503"
+    SIDHighWatermark	    "504"
     Block {
       BlockType		      Constant
       Name		      "1"
@@ -1889,7 +1889,7 @@ Model {
       MaskHideContents	      off
       System {
 	Name			"GPCA Software Controller"
-	Location		[65, 81, 1366, 768]
+	Location		[65, 81, 1280, 768]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -7209,7 +7209,7 @@ Model {
       MaskHideContents	      off
       System {
 	Name			"UI"
-	Location		[65, 81, 1366, 768]
+	Location		[65, 81, 1280, 768]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -7928,7 +7928,7 @@ Model {
       MaskHideContents	      off
       System {
 	Name			"WebSocketsBridge"
-	Location		[66, 81, 1367, 796]
+	Location		[65, 81, 1280, 796]
 	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -8700,7 +8700,7 @@ Model {
 	  MaskHideContents	  off
 	  System {
 	    Name		    "Websocket Bridge"
-	    Location		    [66, 81, 1367, 796]
+	    Location		    [94, 127, 1309, 842]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -8749,31 +8749,20 @@ Model {
 	      IconDisplay	      "Port number"
 	    }
 	    Block {
-	      BlockType		      DiscretePulseGenerator
-	      Name		      "tick"
-	      SID		      "432"
-	      Ports		      [0, 1]
-	      Position		      [75, 49, 105, 81]
-	      ZOrder		      -13
-	      PulseType		      "Time based"
-	      Period		      "512"
-	      PulseWidth	      "50"
-	    }
-	    Block {
 	      BlockType		      S-Function
 	      Name		      "websocket_serverLCT"
-	      SID		      "462"
-	      Ports		      [5, 4]
-	      Position		      [255, 45, 900, 265]
+	      SID		      "504"
+	      Ports		      [4, 4]
+	      Position		      [295, 59, 900, 261]
 	      ZOrder		      1
 	      FunctionName	      "websocket_serverLCT"
 	      EnableBusSupport	      off
 	      MaskType		      "Legacy Function"
 	      MaskDescription	      "This block allows you to call the legacy functions specified by the following Legacy Cod"
 	      "e Tool definition:\ndef.SFunctionName = 'websocket_serverLCT';\ndef.OutputFcnSpec = 'int32 y1 = WebsocketServer"
-	      "(double u1, uint32 u2, uint32 u3, double u4, double u5, uint32 y2[1], double y3[1], double y4[1])';\ndef.Termin"
-	      "ateFcnSpec = 'close_websocket()';\ndef.HeaderFiles = {'websocket_server.h'};\ndef.SourceFiles = {'websocket_ser"
-	      "ver.c'};\ndef.HostLibFiles = {'libwebsockets.so.0.0.3'};\n"
+	      "(uint32 u1, uint32 u2, double u3, double u4, int32 y2[1], double y3[1], double y4[1])';\ndef.TerminateFcnSpec ="
+	      " 'close_websocket()';\ndef.HeaderFiles = {'websocket_server.h'};\ndef.SourceFiles = {'websocket_server.c'};\nde"
+	      "f.HostLibFiles = {'libwebsockets.so'};\n"
 	      MaskHelp		      "<p>This block was generated automatically by the Legacy Code Tool. For detailed help on this t"
 	      "ool, call<a href=\"matlab:legacy_code('help')\"> legacy_code('help')</a>.</p>"
 	      MaskPromptString	      "SFunctionSpec|Display function specification"
@@ -8793,8 +8782,8 @@ Model {
 	      MaskIconRotate	      "port"
 	      MaskPortRotate	      "default"
 	      MaskIconUnits	      "normalized"
-	      MaskValueString	      "int32 y1 = WebsocketServer(double u1, uint32 u2, uint32 u3, double u4, double u5, uint32"
-	      " y2[1], double y3[1], double y4[1])|off"
+	      MaskValueString	      "int32 y1 = WebsocketServer(uint32 u1, uint32 u2, double u3, double u4, int32 y2[1], doub"
+	      "le y3[1], double y4[1])|off"
 	    }
 	    Block {
 	      BlockType		      Outport
@@ -8836,50 +8825,51 @@ Model {
 	    Line {
 	      SrcBlock		      "websocket_serverLCT"
 	      SrcPort		      4
+	      Points		      [0, 5]
 	      DstBlock		      "ProgrammedDoseRate"
 	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "websocket_serverLCT"
 	      SrcPort		      1
+	      Points		      [0, -10]
 	      DstBlock		      "Port"
 	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "websocket_serverLCT"
 	      SrcPort		      2
+	      Points		      [0, -5]
 	      DstBlock		      "eventID"
 	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "CurrentState"
 	      SrcPort		      1
-	      DstBlock		      "websocket_serverLCT"
-	      DstPort		      2
-	    }
-	    Line {
-	      SrcBlock		      "isBolusInProgress"
-	      SrcPort		      1
-	      DstBlock		      "websocket_serverLCT"
-	      DstPort		      3
-	    }
-	    Line {
-	      SrcBlock		      "totalVolumeInfused"
-	      SrcPort		      1
-	      DstBlock		      "websocket_serverLCT"
-	      DstPort		      4
-	    }
-	    Line {
-	      SrcBlock		      "tick"
-	      SrcPort		      1
+	      Points		      [170, 0]
 	      DstBlock		      "websocket_serverLCT"
 	      DstPort		      1
 	    }
 	    Line {
+	      SrcBlock		      "isBolusInProgress"
+	      SrcPort		      1
+	      Points		      [170, 0]
+	      DstBlock		      "websocket_serverLCT"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "totalVolumeInfused"
+	      SrcPort		      1
+	      Points		      [170, 0]
+	      DstBlock		      "websocket_serverLCT"
+	      DstPort		      3
+	    }
+	    Line {
 	      SrcBlock		      "remainingVolumeInReservoir"
 	      SrcPort		      1
+	      Points		      [170, 0]
 	      DstBlock		      "websocket_serverLCT"
-	      DstPort		      5
+	      DstPort		      4
 	    }
 	  }
 	}
@@ -9921,10 +9911,10 @@ Stateflow {
   chart {
     id			    2
     name		    "GPCA Software Controller/StateChanger"
-    windowPosition	    [52 249.6 1040.8 551.2]
-    viewLimits		    [1466.228 3952.228 0 1224.5]
+    windowPosition	    [276.8 -340.8 972 551.2]
+    viewLimits		    [1466.228 3780.228 0 1344.5]
     zoomFactor		    2.5
-    screen		    [1 1 3286 1080 1.25]
+    screen		    [1 1 1280 800 1.25]
     treeNode		    [0 26 0 0]
     viewObj		    2
     visible		    1
@@ -10940,7 +10930,6 @@ Stateflow {
     firstTransition	    304
     firstJunction	    180
     superState		    SUBCHART
-    visible		    0
     subviewer		    2
     subviewS {
       x1		      -16

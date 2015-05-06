@@ -6,7 +6,7 @@ specs = legacy_code('initialize');                  % Create specifications stru
 specs.HeaderFiles = {'websocket_server.h'};         % External header files
 specs.SourceFiles = {'websocket_server.c'};         % External source files
 specs.SFunctionName = 'websocket_serverLCT';        % S-function name
-specs.OutputFcnSpec = 'int32 y1 = WebsocketServer(double u1, uint32 u2, uint32 u3, double u4, double u5, int32 y2[1], double y3[1], double y4[1])';
+specs.OutputFcnSpec = 'int32 y1 = WebsocketServer(uint32 u1, uint32 u2, double u3, double u4, int32 y2[1], double y3[1], double y4[1])';
 % NOTE: libwebsockets must be in your included LIB-files
 % e.g., in ubuntu linux, the default library path is /usr/local/lib
 specs.HostLibFiles = {'libwebsockets.so'};

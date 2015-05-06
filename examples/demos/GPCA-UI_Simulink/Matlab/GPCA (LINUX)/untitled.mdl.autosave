@@ -20,12 +20,12 @@ Model {
   MinMaxOverflowArchiveMode "Overwrite"
   FPTRunName		  "Run 1"
   MaxMDLFileLineLength	  120
-  Created		  "Tue Mar 24 17:18:48 2015"
+  Created		  "Fri Mar 27 17:45:12 2015"
   Creator		  "chimed"
   UpdateHistory		  "UpdateHistoryNever"
   ModifiedByFormat	  "%<Auto>"
   ModifiedDateFormat	  "%<Auto>"
-  RTWModifiedTimeStamp	  349118328
+  RTWModifiedTimeStamp	  349379113
   ModelVersionFormat	  "1.%<AutoIncrement: 0 >"
   ConfigurationManager	  "None"
   SampleTimeColors	  off
@@ -677,18 +677,18 @@ Model {
     ReportName		    "simulink-default.rpt"
     Block {
       BlockType		      S-Function
-      Name		      "patientReaderSfun"
-      Ports		      [0, 5]
-      Position		      [15, 15, 470, 45]
+      Name		      "websocket_serverLCT"
+      Ports		      [4, 4]
+      Position		      [15, 17, 115, 48]
       ZOrder		      1
-      FunctionName	      "patientReaderSfun"
+      FunctionName	      "websocket_serverLCT"
       EnableBusSupport	      off
       MaskType		      "Legacy Function"
       MaskDescription	      "This block allows you to call the legacy functions specified by the following Legacy Code"
-      " Tool definition:\ndef.SFunctionName = 'patientReaderSfun';\ndef.InitializeConditionsFcnSpec = 'randomizeSeed()'"
-      ";\ndef.OutputFcnSpec = 'patientReader(uint32 y1[1], uint32 y2[1], uint32 y3[1], uint32 y4[1], uint32 y5[2])';\nd"
-      "ef.StartFcnSpec = 'openFile()';\ndef.TerminateFcnSpec = 'closeFile()';\ndef.HeaderFiles = {'PatientDataReaderLCT"
-      ".h'};\ndef.SourceFiles = {'PatientDataReaderLCT.c'};\ndef.SampleTime = 1;\n"
+      " Tool definition:\ndef.SFunctionName = 'websocket_serverLCT';\ndef.OutputFcnSpec = 'int32 y1 = WebsocketServer(u"
+      "int32 u1, uint32 u2, double u3, double u4, int32 y2[1], double y3[1], double y4[1])';\ndef.TerminateFcnSpec = 'c"
+      "lose_websocket()';\ndef.HeaderFiles = {'websocket_server.h'};\ndef.SourceFiles = {'websocket_server.c'};\ndef.Ho"
+      "stLibFiles = {'libwebsockets.so'};\n"
       MaskHelp		      "<p>This block was generated automatically by the Legacy Code Tool. For detailed help on this to"
       "ol, call<a href=\"matlab:legacy_code('help')\"> legacy_code('help')</a>.</p>"
       MaskPromptString	      "SFunctionSpec|Display function specification"
@@ -702,14 +702,15 @@ Model {
       MaskVisibilityString    "off,on"
       MaskToolTipString	      "on,on"
       MaskSelfModifiable      on
-      MaskDisplay	      "fprintf('%s','patientReader(uint32 y1[1], uint32 y2[1], uint32 y3[1], uint32 y4[1], uint32 y5"
-      "[2])');"
+      MaskDisplay	      "fprintf('%s','int32 y1 = WebsocketServer(uint32 u1, uint32 u2, double u3, double u4, int32 y2"
+      "[1], double y3[1], double y4[1])');"
       MaskIconFrame	      on
       MaskIconOpaque	      on
       MaskIconRotate	      "port"
       MaskPortRotate	      "default"
       MaskIconUnits	      "normalized"
-      MaskValueString	      "patientReader(uint32 y1[1], uint32 y2[1], uint32 y3[1], uint32 y4[1], uint32 y5[2])|on"
+      MaskValueString	      "int32 y1 = WebsocketServer(uint32 u1, uint32 u2, double u3, double u4, int32 y2[1], doubl"
+      "e y3[1], double y4[1])|off"
     }
   }
 }

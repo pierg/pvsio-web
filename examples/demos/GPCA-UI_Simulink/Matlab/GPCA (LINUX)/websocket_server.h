@@ -8,7 +8,7 @@
  * to check for new incoming messages from the GPCA-UI
  */
 extern int WebsocketServer(/* input variables */
-                    const double tick, 
+
                     const int controller_state, 
                     const int isBolusInProgress, 
                     const double totalVolueInfused, 
@@ -17,6 +17,12 @@ extern int WebsocketServer(/* input variables */
                     int* eventID, 
                     double* programmedVTBI, 
                     double* programmedDoseRate);
+
+void write_websocket(struct libwebsocket* wsi,
+                     int controller_state,
+                     int isBolusInProgress,
+                     double totalVolumeInfused,
+                     double remainingVolumeInReservoir);
 
 
 enum ControllerState { 

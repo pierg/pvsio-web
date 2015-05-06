@@ -27,6 +27,9 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      */
     var sapere_websocket;
 
+    var deviceID = "Radical_ID";
+
+    var deviceAdded = false;
     /*
      * It indicates the state of the socket (the one connecting to Sapere)
      */
@@ -103,42 +106,62 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
         }
     }
     
-    function render_alarms(res) {
+    function render_alarms(res, message) {
         if (res.isOn === "TRUE") {
             if (res.spo2_alarm === "off") {
                 spo2_alarm.hide();
-            } else if (res.spo2_alarm === "alarm") {
-                spo2_alarm.renderGlyphicon("glyphicon-bell");
-            } else if (res.spo2_alarm === "mute") {
-                spo2_alarm.renderGlyphicon("glyphicon-mute");
+            }
+            else {
+                // ALARM ON
+                var DeviceAction = {
+                    action: "update",
+                    deviceID: deviceID,
+                    message: message
+                };
+                sapere_websocket.send(JSON.stringify(DeviceAction));
+
+                if (res.spo2_alarm === "alarm") {
+                    spo2_alarm.renderGlyphicon("glyphicon-bell");
+                } else if (res.spo2_alarm === "mute") {
+                    spo2_alarm.renderGlyphicon("glyphicon-mute");
+                }
             }
         } else {
             spo2_alarm.hide();
         }
     }
-    
-    
+
+
+    function prettyprintState(str) {
+        var state = stateParser.parse(str);
+        return JSON.stringify(state, null, " ");
+    }
+
     /**
         function to handle when an output has been received from the server after sending a guiAction
         if the first parameter is truthy, then an error occured in the process of evaluating the gui action sent
     */
     function onMessageReceived(err, event) {
-        function prettyprintState(str) {
-            var state = stateParser.parse(str);
-            return JSON.stringify(state, null, " ");
-        }
+
         if (!err) {
             client.getWebSocket().lastState(event.data);
             var dbg = prettyprintState(event.data.toString());
-            d3.select(".dbg").node().innerHTML = new Date() + "<br>" + dbg.split("\n").join("<br>") + "<br><br>" + d3.select(".dbg").node().innerHTML;
+            var message = new Date() + "<br>" + dbg.split("\n").join("<br>") + "<br><br>" + d3.select(".dbg").node().innerHTML;
+            d3.select(".dbg").node().innerHTML = message;
 
-            sapere_websocket.send(dbg);
+            //var DeviceAction = {
+            //    action: "update",
+            //    deviceID: deviceID,
+            //    message: message,
+            //};
+            //sapere_websocket.send(JSON.stringify(DeviceAction));
+
             var res = event.data.toString();
             if (res.indexOf("(#") === 0) {
                 res = stateParser.parse(event.data.toString());
 				if (res) {
                     render_spo2(res);
-                    render_alarms(res);
+                    render_alarms(res, event.data.toString());
                 }
             }
         } else { console.log(err); }
@@ -205,14 +228,21 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
     function enableAddButton() {
         logOnDiv('Button enabled', 'sapere_response_log');
         d3.select('.btnAddDevice').on('click', function () {
-            logOnDiv('Adding Device', 'sapere_response_log');
-            var DeviceAction = {
-                action: "add",
-                name: "Radical",
-                type: "Monitor",
-                description: "Radical monitor description"
-            };
-            sapere_websocket.send(JSON.stringify(DeviceAction));
+
+            if (!deviceAdded){
+                logOnDiv('Adding Device', 'sapere_response_log');
+                var DeviceAction = {
+                    action: "add",
+                    deviceID: deviceID,
+                    type: "Monitor",
+                    description: "Radical monitor description"
+                };
+                sapere_websocket.send(JSON.stringify(DeviceAction));
+            }
+            else{
+                logOnDiv('Device already added!', 'sapere_response_log');
+
+            }
         });
 
         d3.select('.btnUpdateDevice').on('click', function () {
@@ -222,7 +252,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             logOnDiv('Sending Message '+ message, 'sapere_response_log');
             var DeviceAction = {
                 action: "update",
-                deviceID: "Radical",
+                deviceID: deviceID,
                 message: message,
             };
             sapere_websocket.send(JSON.stringify(DeviceAction));
@@ -289,14 +319,29 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      * Parse the data sent from Sapere and send it to PVS in order to process it
      * @memberof module:Pacemaker-Sapere
      */
-    function onMessageReceivedSapere(evt) {
-        //var message_received = prettyprintReceivedData(evt.data);
-        var message_received = evt.data;
-        console.log('Message received from Sapere: ' + message_received);
-        logOnDiv('<-RECEIVED<br>' + message_received, 'sapere_response_log');
-        if (!socketClosed) {
-            //pvsio_websocket.sendGuiAction('alaris_tick(10)( ' + message_received + ' )( ' + prettyprintPVSioOutput(pvsio_websocket.lastState()) + ' );', onMessageReceivedPVSio);
-            //logOnDiv('  <<<<<<<<<<<<<<<<    SENT TO PVSio                   ' + '<' + 'br>' + 'alaris_tick(10)( ' + message_received + ' )( ' + prettyprintPVSioOutput(pvsio_websocket.lastState()) + ' );', 'orchestrator');
+    function onMessageReceivedSapere(event) {
+        var text = event.data;
+
+        // JSON FORMAT
+        if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
+                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+
+            var device = JSON.parse(event.data);
+
+            if (device.action === "remove") {
+                logOnDiv('Device removed', 'sapere_response_log');
+                deviceAdded = false;
+            }
+            if (device.action === "add") {
+                logOnDiv('Device added', 'sapere_response_log');
+                deviceAdded = true;
+            }
+
+
+        } // NO JSON
+        else{
+            logOnDiv(text, "sapere_response_log");
         }
     }
 

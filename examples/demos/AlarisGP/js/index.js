@@ -29,6 +29,10 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      */
     var sapere_websocket;
 
+    var deviceID = "Alaris_ID";
+
+    var deviceAdded = false;
+
     /*
      * It indicates the state of the socket (the one connecting to Sapere)
      */
@@ -54,7 +58,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
 					.style("height", "460px").style("width", "400px").attr("class", "dbg");
 
     content = imageHolder.append("div").style("position", "absolute").style("top", "40px").style("left", "850px")
-        .style("height", "460px").style("width", "400px").attr("id", "sapere_response_log").attr("class", "dbg");
+        .style("height", "460px").style("width", "400px").attr("id", "monitor").attr("class", "dbg");
         
     //append a div that will contain the canvas elements
 
@@ -296,7 +300,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
         if (window.hasOwnProperty('WebSocket')) {
             //var location = document.getElementById('ControllerAddress').value + ':8026';
             //logOnDiv('Trying to estrablish connection with controller at ' + location, 'orchestrator');
-            logOnDiv('Trying to estrablish connection with controller at ' + "localhost:8026/websockets/alaris", 'sapere_response_log');
+            logOnDiv('Trying to estrablish connection with controller at ' + "localhost:8026/websockets/alaris", 'monitor');
             //sapere_websocket = new WebSocket('ws://' + location, 'websockets');
             sapere_websocket = new WebSocket('ws://localhost:8080/websocket/actions');
 
@@ -306,7 +310,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             sapere_websocket.onopen = function () {
                 socketClosed = false;
                 //logOnDiv('Controller connected', 'orchestrator');
-                logOnDiv('Controller connected', 'sapere_response_log');
+                logOnDiv('Controller connected', 'monitor');
                 enableAddButton();
             };
             /*
@@ -321,7 +325,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             sapere_websocket.onclose = function () {
                 socketClosed = true;
                 //logOnDiv('Controller disconnected', 'orchestrator');
-                logOnDiv('Controller disconnected', 'sapere_response_log');
+                logOnDiv('Controller disconnected', 'monitor');
                 stop_sensing_pacing();
             };
         } else {
@@ -338,14 +342,28 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      * Parse the data sent from Sapere and send it to PVS in order to process it
      * @memberof module:Pacemaker-Sapere
      */
-    function onMessageReceivedSapere(evt) {
-        //var message_received = prettyprintReceivedData(evt.data);
-        var message_received = evt.data;
-        console.log('Message received from Sapere: ' + message_received);
-        logOnDiv('<-RECEIVED<br>' + message_received, 'sapere_response_log');
-        if (!socketClosed) {
-            //pvsio_websocket.sendGuiAction('alaris_tick(10)( ' + message_received + ' )( ' + prettyprintPVSioOutput(pvsio_websocket.lastState()) + ' );', onMessageReceivedPVSio);
-            //logOnDiv('  <<<<<<<<<<<<<<<<    SENT TO PVSio                   ' + '<' + 'br>' + 'alaris_tick(10)( ' + message_received + ' )( ' + prettyprintPVSioOutput(pvsio_websocket.lastState()) + ' );', 'orchestrator');
+    function onMessageReceivedSapere(event) {
+        var text = event.data;
+
+        // JSON FORMAT
+        if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
+                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+
+            var device = JSON.parse(event.data);
+
+            if (device.action === "remove") {
+                logOnDiv('Device removed', 'monitor');
+                deviceAdded = false;
+            }
+            if (device.action === "add") {
+                logOnDiv('Device added', 'monitor');
+                deviceAdded = true;
+            }
+
+        } // NO JSON
+        else{
+            logOnDiv(text, "monitor");
         }
     }
 
@@ -356,16 +374,20 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      * @memberof module:Pacemaker-Simulink
      */
     function enableAddButton() {
-        logOnDiv('Button enabled', 'sapere_response_log');
+        logOnDiv('Button enabled', 'monitor');
         d3.select('.btnAddDevice').on('click', function () {
-            logOnDiv('Adding Device', 'sapere_response_log');
-            var DeviceAction = {
-                action: "add",
-                name: "Alaris",
-                type: "Pump",
-                description: "Alaris pump description"
-            };
-            sapere_websocket.send(JSON.stringify(DeviceAction));
+            if(deviceAdded == false){
+                var DeviceAction = {
+                    action: "add",
+                    deviceID: deviceID,
+                    type: "Pump",
+                    description: "Alaris pump description"
+                };
+                sapere_websocket.send(JSON.stringify(DeviceAction));
+            }
+            else{
+                logOnDiv('Device already added!', 'monitor');
+            }
         });
     }
 

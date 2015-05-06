@@ -20,12 +20,12 @@ Model {
   MinMaxOverflowArchiveMode "Overwrite"
   FPTRunName		  "Run 1"
   MaxMDLFileLineLength	  120
-  Created		  "Tue Mar 24 17:18:50 2015"
+  Created		  "Fri Mar 27 17:48:22 2015"
   Creator		  "chimed"
   UpdateHistory		  "UpdateHistoryNever"
   ModifiedByFormat	  "%<Auto>"
   ModifiedDateFormat	  "%<Auto>"
-  RTWModifiedTimeStamp	  349118330
+  RTWModifiedTimeStamp	  349379302
   ModelVersionFormat	  "1.%<AutoIncrement: 0 >"
   ConfigurationManager	  "None"
   SampleTimeColors	  off
@@ -677,20 +677,18 @@ Model {
     ReportName		    "simulink-default.rpt"
     Block {
       BlockType		      S-Function
-      Name		      "DrugLibraryReaderSfun"
-      Ports		      [1, 22]
-      Position		      [15, 15, 115, 120]
+      Name		      "websocket_serverLCT"
+      Ports		      [4, 4]
+      Position		      [15, 17, 115, 48]
       ZOrder		      1
-      FunctionName	      "DrugLibraryReaderSfun"
+      FunctionName	      "websocket_serverLCT"
       EnableBusSupport	      off
       MaskType		      "Legacy Function"
       MaskDescription	      "This block allows you to call the legacy functions specified by the following Legacy Code"
-      " Tool definition:\ndef.SFunctionName = 'DrugLibraryReaderSfun';\ndef.OutputFcnSpec = 'DrugLibraryReader(uint32 u"
-      "1[2], uint32 y1[1], uint32 y2[1], uint32 y3[1], uint32 y4[1], double  y5[1], double  y6[1], double  y7[1],double"
-      "  y8[1],double  y9[1],double  y10[1],double  y11[1],double  y12[1], double  y13[1],double  y14[1],double  y15[1]"
-      ",double  y16[1],double  y17[1],double  y18[1],double  y19[1], double  y20[1],double  y21[1], uint32  y22[1])';\n"
-      "def.StartFcnSpec = 'openFile()';\ndef.TerminateFcnSpec = 'closeFile()';\ndef.HeaderFiles = {'DrugLibraryLCT.h'};"
-      "\ndef.SourceFiles = {'DrugLibraryLCT.c'};\ndef.SampleTime = 1;\n"
+      " Tool definition:\ndef.SFunctionName = 'websocket_serverLCT';\ndef.OutputFcnSpec = 'int32 y1 = WebsocketServer(u"
+      "int32 u1, uint32 u2, double u3, double u4, int32 y2[1], double y3[1], double y4[1])';\ndef.TerminateFcnSpec = 'c"
+      "lose_websocket()';\ndef.HeaderFiles = {'websocket_server.h'};\ndef.SourceFiles = {'websocket_server.c'};\ndef.Ho"
+      "stLibFiles = {'libwebsockets.so'};\n"
       MaskHelp		      "<p>This block was generated automatically by the Legacy Code Tool. For detailed help on this to"
       "ol, call<a href=\"matlab:legacy_code('help')\"> legacy_code('help')</a>.</p>"
       MaskPromptString	      "SFunctionSpec|Display function specification"
@@ -704,19 +702,15 @@ Model {
       MaskVisibilityString    "off,on"
       MaskToolTipString	      "on,on"
       MaskSelfModifiable      on
-      MaskDisplay	      "fprintf('%s','DrugLibraryReader(uint32 u1[2], uint32 y1[1], uint32 y2[1], uint32 y3[1], uint3"
-      "2 y4[1], double  y5[1], double  y6[1], double  y7[1],double  y8[1],double  y9[1],double  y10[1],double  y11[1],d"
-      "ouble  y12[1], double  y13[1],double  y14[1],double  y15[1],double  y16[1],double  y17[1],double  y18[1],double "
-      " y19[1], double  y20[1],double  y21[1], uint32  y22[1])');"
+      MaskDisplay	      "fprintf('%s','int32 y1 = WebsocketServer(uint32 u1, uint32 u2, double u3, double u4, int32 y2"
+      "[1], double y3[1], double y4[1])');"
       MaskIconFrame	      on
       MaskIconOpaque	      on
       MaskIconRotate	      "port"
       MaskPortRotate	      "default"
       MaskIconUnits	      "normalized"
-      MaskValueString	      "DrugLibraryReader(uint32 u1[2], uint32 y1[1], uint32 y2[1], uint32 y3[1], uint32 y4[1], d"
-      "ouble  y5[1], double  y6[1], double  y7[1],double  y8[1],double  y9[1],double  y10[1],double  y11[1],double  y12"
-      "[1], double  y13[1],double  y14[1],double  y15[1],double  y16[1],double  y17[1],double  y18[1],double  y19[1], d"
-      "ouble  y20[1],double  y21[1], uint32  y22[1])|off"
+      MaskValueString	      "int32 y1 = WebsocketServer(uint32 u1, uint32 u2, double u3, double u4, int32 y2[1], doubl"
+      "e y3[1], double y4[1])|off"
     }
   }
 }
