@@ -319,7 +319,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      * @memberof module:Pacemaker-Sapere
      */
     var connectSapere = function () {
-        var url = "ws://localhost:8080/websocket/actions",
+        var url = "ws://localhost:8080/SapereEE/actions",
             sapere_log = "sapere_response_log",
             device = "Radical7";
         

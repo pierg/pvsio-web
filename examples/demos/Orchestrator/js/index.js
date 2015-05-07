@@ -98,9 +98,9 @@ require([
         if (window.hasOwnProperty('WebSocket')) {
             //var location = document.getElementById('ControllerAddress').value + ':8026';
             //logOnDiv('Trying to estrablish connection with controller at ' + location, 'monitor');
-            logOnDiv('Trying to estrablish connection with controller at ' + "ws://localhost:8080/websocket/actions", 'monitor');
+            logOnDiv('Trying to estrablish connection with controller at ' + "ws://localhost:8080/SapereEE/actions", 'monitor');
             //sapere_websocket = new WebSocket('ws://' + location, 'websockets');
-            sapere_websocket = new WebSocket('ws://localhost:8080/websocket/actions');
+            sapere_websocket = new WebSocket('ws://localhost:8080/SapereEE/actions');
 
             /*
              * It starts the control process that send the information to Sapere

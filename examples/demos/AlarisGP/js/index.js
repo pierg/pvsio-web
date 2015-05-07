@@ -303,7 +303,7 @@ require(["widgets/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "wi
             //logOnDiv('Trying to estrablish connection with controller at ' + location, 'orchestrator');
             logOnDiv('Trying to estrablish connection with controller at ' + "localhost:8026/websockets/alaris", 'monitor');
             //sapere_websocket = new WebSocket('ws://' + location, 'websockets');
-            sapere_websocket = new WebSocket('ws://localhost:8080/websocket/actions');
+            sapere_websocket = new WebSocket('ws://localhost:8080/SapereEE/actions');
 
             /*
              * It starts the control process that send the information to Sapere
