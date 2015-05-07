@@ -4,7 +4,6 @@
  * @date 27/03/15 20:30:33 PM
  */
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, d3, require, $, brackets, document, PVSioWebClient */
 require.config({
     baseUrl: "../../client/app",
     paths: {
@@ -26,16 +25,12 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      * Websocket used to communicate with SAPERE
      */
     var sapere_websocket;
+    var deviceID = "Radical";
 
-    var deviceID = "Radical_ID";
+    var deviceAdded;
 
-    var deviceAdded = false;
-    /*
-     * It indicates the state of the socket (the one connecting to Sapere)
-     */
-    var socketClosed;
-    
     var d3 = require("d3/d3");
+    var serverLogs = [], maxLogSize = 40;
 
 	var client = PVSioWebClient.getInstance();
     //create a collapsible panel using the pvsiowebclient instance
@@ -44,12 +39,43 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
         headerText: "Simulation of Masimo Radical 7 PulseOximeter",
         showContent: true,
         isDemo: true
-    }).style("position", "relative");
+    }).style("position", "relative").style("width", "1200px");
     //insert the html into the panel (note that this could have used templates or whatever)
     imageHolder.html('<img src="radical-7.png" usemap="#prototypeMap"/>').attr("id", "prototype");
     
-    var content = imageHolder.append("div").style("position", "absolute").style("top", "20px").style("left", "600px")
-					.style("height", "186px").style("width", "400px").attr("class", "dbg");
+    // append control panel
+    // FIXME: create a library with APIs to create SAPERE control panels -- i.e., something similar to client.createCollapsiblePanel
+    var content = imageHolder.append("div").style("width", "600px").style("float", "right");
+    content.append("div").attr("style", "margin-bottom: 10px;").append("input").attr("type", "button")
+                .attr("id", "btnShowPanel").attr("value", "Show Advanced Controls");
+    var controlPanel = content.append("div").attr("id", "controlPanel").style("display", "none");
+    // sapere
+    var sapereControl = controlPanel.append("div").attr("class", "sapere");
+    sapereControl.append("div").attr("class", "sapere_control_panel")
+                .append("input").attr("type", "button").attr("class", "btnAddDevice")
+                .attr("value", "Add New Radical7");
+    sapereControl.append("div").attr("id", "sapere_response_log").attr("class", "console_log");
+    sapereControl.append("input").attr("type", "text").attr("name", "address")
+                .attr("placeholder", "Please type a message")
+                .attr("id", "updateMessage");
+    sapereControl.append("input").attr("type", "button").attr("class", "btnUpdateDevice")
+                .attr("value", "Send");
+    // pvsio
+    controlPanel.append("div").attr("class", "pvsio")
+        .text("Device State").append("div").attr("class", "dbg").attr("id", "dbg")
+        .style("position", "absolute").style("top", "20px")
+        .attr("style", "height: 100%; width: 100%; height: 600px;");
+    
+    d3.select("#btnShowPanel").on("click", function toggleDebug() {
+        if (document.getElementById("controlPanel").style.display === "none") {
+            document.getElementById("controlPanel").style.display = "block";
+            document.getElementById("btnShowPanel").value = "Hide Advanced Controls";
+        } else {
+            document.getElementById("controlPanel").style.display = "none";
+            document.getElementById("btnShowPanel").value = "Show Advanced Controls";
+        }
+    });
+    
     
     //append a div that will contain the canvas elements
     var tick = null;
@@ -57,7 +83,10 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
 
     //spo2
     var spo2 = new SingleDisplay("spo2",
-                                 { top: 54, left: 164, height: 36, width: 50 },
+                                 { top: 54, left: 164, height: 34, width: 50 },
+                                 { parent: "prototype", font: "Times" });
+    var spo2_fail = new SingleDisplay("spo2_fail",
+                                 { top: 62, left: 164, height: 22, width: 50 },
                                  { parent: "prototype", font: "Times" });
     var spo2_label = new SingleDisplay("spo2_label",
                                  { top: 86, left: 164, height: 10, width: 50 },
@@ -78,7 +107,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             var args = str.split("/");
             v = +args[0] / +args[1];
         }
-        return (v < 10) ? v.toFixed(1).toString() : v.toFixed(0).toString();
+        return (v <= 0) ? "--" : ((v < 10) ? v.toFixed(1).toString() : v.toFixed(0).toString());
     }
     function evaluate_spo2range(str) {
         var v = +str;
@@ -86,14 +115,20 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             var args = str.split("/");
             v = +args[0] / +args[1];
         }
-        return (v < 0) ? "--" : v.toFixed(1).toString();
+        return (v <= 0) ? "--" : v.toFixed(1).toString();
     }
     
     
     function render_spo2(res) {
         if (res.isOn === "TRUE") {
-            spo2.render(evaluate_spo2(res.spo2));
-            spo2_label.render("%" + res.spo2_label.replace(/\"/g, ""));
+            if (res.spo2_fail === "FALSE") {
+                spo2_fail.hide();
+                spo2.render(evaluate_spo2(res.spo2));
+            } else {
+                spo2.hide();
+                spo2_fail.render("FAIL");
+            }
+            spo2_label.render("%" + res.spo2_label.replace(/"/g, ""));
             spo2_max.render(evaluate_spo2range(res.spo2_max));
             spo2_min.render(evaluate_spo2range(res.spo2_min));
             start_tick();
@@ -102,66 +137,75 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             spo2_label.hide();
             spo2_max.hide();
             spo2_min.hide();
+            spo2_fail.hide();
             stop_tick();
         }
     }
     
-    function render_alarms(res, message) {
+    function render_alarms(res) {
         if (res.isOn === "TRUE") {
             if (res.spo2_alarm === "off") {
                 spo2_alarm.hide();
-            }
-            else {
-                // ALARM ON
-                var DeviceAction = {
-                    action: "update",
-                    deviceID: deviceID,
-                    message: message
-                };
-                sapere_websocket.send(JSON.stringify(DeviceAction));
-
-                if (res.spo2_alarm === "alarm") {
-                    spo2_alarm.renderGlyphicon("glyphicon-bell");
-                } else if (res.spo2_alarm === "mute") {
-                    spo2_alarm.renderGlyphicon("glyphicon-mute");
-                }
+            } else if (res.spo2_alarm === "alarm") {
+                spo2_alarm.renderGlyphicon("glyphicon-bell");
+            } else if (res.spo2_alarm === "mute") {
+                spo2_alarm.renderGlyphicon("glyphicon-mute");
             }
         } else {
             spo2_alarm.hide();
         }
     }
-
-
-    function prettyprintState(str) {
-        var state = stateParser.parse(str);
-        return JSON.stringify(state, null, " ");
-    }
-
+    
+    
     /**
         function to handle when an output has been received from the server after sending a guiAction
         if the first parameter is truthy, then an error occured in the process of evaluating the gui action sent
     */
     function onMessageReceived(err, event) {
 
+        function prettyprintState(str) {
+            var state = stateParser.parse(str);
+            state.spo2_label = state.spo2_label.replace(/"/g, "");
+            return JSON.stringify(state, null, " ");
+        }
+
         if (!err) {
             client.getWebSocket().lastState(event.data);
             var dbg = prettyprintState(event.data.toString());
-            var message = new Date() + "<br>" + dbg.split("\n").join("<br>") + "<br><br>" + d3.select(".dbg").node().innerHTML;
-            d3.select(".dbg").node().innerHTML = message;
 
-            //var DeviceAction = {
-            //    action: "update",
-            //    deviceID: deviceID,
-            //    message: message,
-            //};
-            //sapere_websocket.send(JSON.stringify(DeviceAction));
+            // logging
+            var date = new Date();
+            serverLogs.push({data: dbg, date: date, id: event.id, type: "dbg"});
+            if (serverLogs.length > maxLogSize) {
+                serverLogs = serverLogs.slice(-maxLogSize);
+            }
+            var logLines = d3.select(".dbg").selectAll("textarea").data(serverLogs, function (d, i) {
+                return d.id;
+            });
+            logLines.enter()
+                .insert("textarea", "textarea").html(function (d) {
+                    return d.date.toString() + "\n" + d.data;
+                }).style("width", "100%")
+                .attr("readonly", true)
+                .attr("rows", function (d) {
+                    return d.data.split("\n").length + 1;
+                }).attr("class", function (d) {
+                    return d.type;
+                });
+            logLines.exit().remove();
 
+            // sapere
+            if(deviceAdded){
+                sendDataUpdate(event.data.toString());
+            }
+            
+            // rendering
             var res = event.data.toString();
             if (res.indexOf("(#") === 0) {
                 res = stateParser.parse(event.data.toString());
 				if (res) {
                     render_spo2(res);
-                    render_alarms(res, event.data.toString());
+                    render_alarms(res);
                 }
             }
         } else { console.log(err); }
@@ -196,6 +240,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
     d3.select("#submit_spo2_sensor_data").on("click", function () {
         var data = d3.select("#spo2_sensor_data").node().value;
         if (data) {
+            data = (isNaN(parseFloat(data))) ? -1 : parseFloat(data);
             stop_tick();
             client.getWebSocket()
                 .sendGuiAction("spo2_sensor_data(" + data + ")(" + client.getWebSocket().lastState() + ");", onMessageReceived);
@@ -209,7 +254,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
     /**
      * @function logOnDiv
      * @description Utility function, sends messages to different div elements in the html page
-     * @memberof module:Pacemaker-Simulink
+     * @memberof module:Radical7
      */
     function logOnDiv(msg, logger) {
         var newP = document.createElement("p");
@@ -225,39 +270,45 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      * @description Binding user interface buttons, in this case there is only the connect button.
      * @memberof module:Pacemaker-Simulink
      */
-    function enableAddButton() {
+    function enableButtons() {
         logOnDiv('Button enabled', 'sapere_response_log');
         d3.select('.btnAddDevice').on('click', function () {
-
-            if (!deviceAdded){
-                logOnDiv('Adding Device', 'sapere_response_log');
-                var DeviceAction = {
-                    action: "add",
-                    deviceID: deviceID,
-                    type: "Monitor",
-                    description: "Radical monitor description"
-                };
-                sapere_websocket.send(JSON.stringify(DeviceAction));
-            }
-            else{
-                logOnDiv('Device already added!', 'sapere_response_log');
-
-            }
+            addDevice();
         });
 
         d3.select('.btnUpdateDevice').on('click', function () {
-
             var message = document.getElementById('updateMessage').value;
-
-            logOnDiv('Sending Message '+ message, 'sapere_response_log');
-            var DeviceAction = {
-                action: "update",
-                deviceID: deviceID,
-                message: message,
-            };
-            sapere_websocket.send(JSON.stringify(DeviceAction));
+            sendDataUpdate(message);
         });
     }
+
+    function addDevice(){
+        if (!deviceAdded){
+            logOnDiv('Adding Device', 'sapere_response_log');
+            var DeviceAction = {
+                action: "add",
+                deviceID: deviceID,
+                type: "Monitor",
+                description: "Radical monitor description"
+            };
+            sapere_websocket.send(JSON.stringify(DeviceAction));
+        }
+        else{
+            logOnDiv('Device already added!', 'sapere_response_log');
+        }
+    }
+
+    function sendDataUpdate(message){
+
+        logOnDiv('Sending Message \n'+ message, 'sapere_response_log');
+        var DeviceAction = {
+            action: "update",
+            deviceID: deviceID,
+            message: message,
+        };
+        sapere_websocket.send(JSON.stringify(DeviceAction));
+    }
+
 
 
     /**
@@ -268,49 +319,51 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      * @memberof module:Pacemaker-Sapere
      */
     var connectSapere = function () {
-        /*
-         * If websocket is supported by the browser
-         */
-        if (window.hasOwnProperty('WebSocket')) {
-            //var location = document.getElementById('ControllerAddress').value + ':8026';
-            //logOnDiv('Trying to estrablish connection with controller at ' + location, 'orchestrator');
-            logOnDiv('Trying to estrablish connection with controller at ' + "localhost:8026/websockets/alaris", 'sapere_response_log');
-            //sapere_websocket = new WebSocket('ws://' + location, 'websockets');
-            sapere_websocket = new WebSocket('ws://localhost:8080/websocket/actions');
+        var url = "ws://localhost:8080/websocket/actions",
+            sapere_log = "sapere_response_log",
+            device = "Radical7";
+        
+        return new Promise(function (resolve, reject) {
+            if (sapere_websocket && sapere_websocket.readyState === 1) {
+                logOnDiv("Device already connected!", sapere_log);
+                resolve();
+            } else {
+                logOnDiv("Trying to establish connection...", sapere_log);
+                sapere_websocket = new WebSocket(url);
 
-            /*
-             * It starts the control process that send the information to Sapere
-             */
-            sapere_websocket.onopen = function () {
-                socketClosed = false;
-                //logOnDiv('Controller connected', 'orchestrator');
-                logOnDiv('Controller connected', 'sapere_response_log');
-                //startSensingPacing();
-
-                enableAddButton();
-
-            };
-            /*
-             * Receive event
-             */
-            sapere_websocket.onmessage = function (evt) {
-                onMessageReceivedSapere(evt);
-            };
-            /*
-             * Close event
-             */
-            sapere_websocket.onclose = function () {
-                socketClosed = true;
-                //logOnDiv('Controller disconnected', 'orchestrator');
-                logOnDiv('Controller disconnected', 'sapere_response_log');
-                stop_sensing_pacing();
-            };
-        } else {
-            /*
-             * The browser doesn't support WebSocket
-             */
-            alert('WebSocket NOT supported by your Browser!');
-        }
+                /*
+                 * It starts the control process that send the information to Sapere
+                 */
+                sapere_websocket.onopen = function () {
+                    logOnDiv(device + " successfully connected to the network!", sapere_log);
+                    enableButtons();
+                    addDevice();
+                    resolve();
+                };
+                /*
+                 * Receive event
+                 */
+                sapere_websocket.onmessage = function (evt) {
+                    onMessageReceivedSapere(evt);
+                };
+                /*
+                 * Close event
+                 */
+                sapere_websocket.onclose = function () {
+                    logOnDiv(device + " disconnected from the network :(", sapere_log);
+                    sapere_websocket = null;
+                };
+                /*
+                 * Connection failed
+                 */
+                sapere_websocket.onerror = function () {
+                    var msg = "Unable to connect to " + url;
+                    logOnDiv(msg, sapere_log);
+                    sapere_websocket = null;
+                    reject(msg);
+                };
+            }
+        });
     };
 
     /**
@@ -364,7 +417,6 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
             client.getWebSocket().sendGuiAction("init(0);", onMessageReceived);
 			d3.select(".demo-splash").style("display", "none");
             d3.select(".content").style("display", "block");
-            connectSapere();
 		});
 	}).addListener("WebSocketConnectionClosed", function (e) {
 		console.log("web socket closed");
@@ -374,5 +426,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
 	});
 	
 	client.connectToServer();
+
+    connectSapere();
 	
 });

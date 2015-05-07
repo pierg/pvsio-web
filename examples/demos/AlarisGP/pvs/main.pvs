@@ -1,4 +1,4 @@
-main: THEORY
+main :THEORY
  BEGIN
   maxinfuse: nat = 1200
   maxrate  : nat = maxinfuse
@@ -23,23 +23,24 @@ main: THEORY
      time := 0,
      kvorate := infusemin
   #)
-  alaris_init: alaris = (#
+  alaris_init(ID: string): alaris = (#
+    id := ID,
     device := device_init,
     topline := dispblank,
     middisp := LAMBDA (x: upto(9)): FALSE,
     bagscursor := midbag,
     qcursor := dlock,
     bagsval := LAMBDA (x: upto(9)):
-    	         COND x = 0 -> 0,
+                 COND x = 0 -> 0,
                       x = 1 -> 50,
-		      x = 2 -> 100,
-		      x = 3 -> 200,
-		      x = 4 -> 250,
-		      x = 5 -> 500,
-		      x = 6 -> 1000,
-		      x = 7 -> 1500,
-		      x = 8 -> 2000,
-		      x = 9 -> 3000 ENDCOND,
+              x = 2 -> 100,
+              x = 3 -> 200,
+              x = 4 -> 250,
+              x = 5 -> 500,
+              x = 6 -> 1000,
+              x = 7 -> 1500,
+              x = 8 -> 2000,
+              x = 9 -> 3000 ENDCOND,
     fndisp1 := fnull,
     fndisp2 := fnull,
     fndisp3 := fnull,
@@ -60,6 +61,7 @@ main: THEORY
   #)
 
   state: TYPE = [#
+    id: string,
     device : pump,
     topline: iline, % [vis]
     middisp: list[bool], %imid,  % [vis]
@@ -105,6 +107,7 @@ main: THEORY
   #]
 
   alaris2state(st: alaris): state = (#
+    id := id(st),
     device := device(st),
     topline := topline(st),
     middisp := (: middisp(st)(0), middisp(st)(1), middisp(st)(2), middisp(st)(3), middisp(st)(4), middisp(st)(5), middisp(st)(6), middisp(st)(7), middisp(st)(8), middisp(st)(9) :),
@@ -150,6 +153,7 @@ main: THEORY
   CONVERSION alaris2state
 
   state2alaris(st: state): alaris = (#
+    id := id(st),
     device := device(st),
     topline := topline(st),
     middisp := LAMBDA (x: upto(9)): nth(middisp(st), x),
@@ -176,7 +180,8 @@ main: THEORY
   #)
   CONVERSION state2alaris
 
-  init(x: real): state = alaris_init
+  init(x: real): state = alaris_init("AlarisGP")
+  init(x: real, ID: string): state = alaris_init(ID)
 
   click_btn_on(st: alaris): state =
     COND
@@ -196,6 +201,9 @@ main: THEORY
       ELSE -> st
     ENDCOND
 
+  click_btn_fup(st: alaris): state =
+    release_btn_fup(press_btn_fup(st))
+
   press_btn_sup(st: alaris): state =
     COND
       per_sup(st) -> sup(st),
@@ -207,6 +215,9 @@ main: THEORY
       per_release_sup(st) -> release_sup(st),
       ELSE -> st
     ENDCOND
+
+  click_btn_sup(st: alaris): state =
+    release_btn_sup(press_btn_sup(st))
 
   press_btn_fdown(st: alaris): state =
     COND
@@ -220,6 +231,9 @@ main: THEORY
       ELSE -> st
     ENDCOND
 
+ click_btn_fdown(st: alaris): state =
+    release_btn_fdown(press_btn_fdown(st))
+
   press_btn_sdown(st: alaris): state =
     COND
       per_sdown(st) -> sdown(st),
@@ -231,6 +245,9 @@ main: THEORY
       per_release_sdown(st) -> release_sdown(st),
       ELSE -> st
     ENDCOND
+
+  click_btn_sdown(st: alaris): state =
+    release_btn_sdown(press_btn_sdown(st))
 
   click_btn_run(st: alaris): state =
     COND
