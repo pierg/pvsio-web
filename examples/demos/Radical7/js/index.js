@@ -26,7 +26,6 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
      */
     var sapere_websocket;
     var deviceID = "Radical";
-
     var deviceAdded;
 
     var d3 = require("d3/d3");
@@ -268,7 +267,7 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
     /**
      * @function enable_button
      * @description Binding user interface buttons, in this case there is only the connect button.
-     * @memberof module:Pacemaker-Simulink
+     * @memberof module:Radical7
      */
     function enableButtons() {
         logOnDiv('Button enabled', 'sapere_response_log');
@@ -390,23 +389,11 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
                 logOnDiv('Device added', 'sapere_response_log');
                 deviceAdded = true;
             }
-
-
         } // NO JSON
         else{
             logOnDiv(text, "sapere_response_log");
         }
     }
-
-
-    // TODO: need to understand how to use Buttons
-//    var btn_on = new Button("btn_on");
-//    btn_on.recallRate(250);
-//    btn_on.evts("click");
-//    btn_on.functionText("btn_on");
-//    var region_btn_on = d3.select(".btn_on");
-//    btn_on.element(region_btn_on);
-//    btn_on.createImageMap(client.getWebSocket(), onMessageReceived);
 
 
     //register event listener for websocket connection from the client

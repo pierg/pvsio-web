@@ -16,8 +16,7 @@ main: THEORY
     spo2_label: string,
     spo2_alarm: Alarm,
     spo2_fail: bool,
-    isOn: bool,
-    output: MonitorOutput
+    isOn: bool
   #]
 
   init(x: real): state = (#
@@ -28,8 +27,7 @@ main: THEORY
     spo2_label := "SpO2",
     spo2_alarm := off,
     spo2_fail := false,
-    isOn := false,
-    output := (# spo2 := x #)
+    isOn := false
   #)
 
   init(x: real, id: string): state = (#
@@ -40,10 +38,8 @@ main: THEORY
     spo2_label := "SpO2",
     spo2_alarm := off,
     spo2_fail := false,
-    isOn := false,
-    output := (# spo2 := x #)
+    isOn := false
   #)
-
 
   per_on(st: state): bool = true
   on(st: (per_on)): state = st WITH [ isOn := NOT isOn(st) ]
@@ -74,6 +70,5 @@ main: THEORY
     ENDCOND
   
   spo2_sensor_data(x: real)(st: state): state =
-    st WITH [ spo2 := x, output := (# spo2 := x #), spo2_fail := (x < 0 OR x > 100) ]
-
+    st WITH [ spo2 := x, spo2_fail := (x < 0 OR x > 100) ]
  END main

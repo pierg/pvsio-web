@@ -270,6 +270,7 @@ function run() {
         if (folderPath.indexOf("pvsbin") > -1) { return; }
 
         var watch = function (folder) {
+            if (folder.indexOf("pvsbin") > -1) { return; }
 //            logger.debug("watching changes to .. " + folder);
             return fs.watch(folder, {persistent: false}, function (event, name) {
                 var extension = path.extname(name).toLowerCase();
@@ -389,13 +390,24 @@ function run() {
             },
             "setMainFile": function (token, socket, socketid) {
                 initProcessMap(socketid);
-                changeProjectSetting(token.projectName, "mainPVSFile", token.name)
-                    .then(function (res) {
-                        res.id = token.id;
-                        res.socketId = socketid;
-                        res.time = token.time;
-                        processCallback(res, socket);
-                    });
+                var mainFile = token.path.split("/").slice(1).join("/");
+                if (mainFile !== "") {
+                    changeProjectSetting(token.projectName, "mainPVSFile", mainFile)
+                        .then(function (res) {
+                            res.id = token.id;
+                            res.socketId = socketid;
+                            res.time = token.time;
+                            processCallback(res, socket);
+                        });
+                } else {
+                    res.type = res.type + "_error";
+                    res.err = {
+                        message: "Invalid token " + JSON.stringify(token),
+                        code: "ENOENT",
+                        path: token.path
+                    };
+                    processCallback(res, socket);
+                }
             },
             "changeProjectSetting": function (token, socket, socketid) {
                 initProcessMap(socketid);
@@ -671,7 +683,8 @@ function run() {
             },
             "readDirectory": function (token, socket, socketid) {
                 initProcessMap(socketid);
-                var absPath = token.path === "~" ? process.env.HOME : isAbsolute(token.path) ? token.path : path.join(baseProjectDir, token.path);
+                var absPath = token.path.indexOf("~") === 0 ? path.join(process.env.HOME, token.path.substr(1))
+                    : isAbsolute(token.path) ? token.path : path.join(baseProjectDir, token.path);
                 readDirectory(absPath)
                     .then(function (files) {
                         processCallback({

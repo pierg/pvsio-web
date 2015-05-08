@@ -169,6 +169,9 @@ define(function (require, exports, module) {
         };
     }
 
+    ModelEditor.prototype.getName = function () {
+        return "Model Editor";
+    };
     /////These are the api methods that the prototype builder plugin exposes
     ModelEditor.prototype.getDependencies = function () { return []; };
 
@@ -185,8 +188,7 @@ define(function (require, exports, module) {
                     var importFolder = getImportFolderName();
                     files.forEach(function (file) {
                         // FIXME: directories are discarded when using absolute paths. Can we do better?
-                        if (file.path.indexOf("/") === 0) { file.path = file.name; }
-                        file.path = importFolder + "/" + file.path;
+                        file.path = importFolder + "/" + file.name;
                         promises.push(projectManager.writeFileDialog(file.path, file.content, { encoding: file.encoding }));
                     });
                     Promise.all(promises).then(function (res) {
@@ -289,7 +291,12 @@ define(function (require, exports, module) {
             var pvsFile = projectManager.getSelectedFile(), project = projectManager.project();
             if (pvsFile) {
                 var ws = WSManager.getWebSocket();
-                ws.send({type: "setMainFile", projectName: project.name(), name: pvsFile.path}, function (err) {
+                ws.send({
+                    type: "setMainFile",
+                    projectName: project.name(),
+                    name: pvsFile.name,
+                    path: pvsFile.path
+                }, function (err) {
                     //if there was no error update the main file else alert user
                     if (!err) {
                         // set main file
@@ -314,11 +321,11 @@ define(function (require, exports, module) {
     ModelEditor.prototype.initialise = function () {
         editorContainer = pvsioWebClient.createCollapsiblePanel({
             headerText: "Model Editor",
-            showContent: false,
+            showContent: true,
             onClick: function () {
                 editor.refresh();
             },
-            owner: "ModelEditor"
+            owner: this.getName()
         });
         editorContainer.append("div").html(sourceCodeTemplate);
 

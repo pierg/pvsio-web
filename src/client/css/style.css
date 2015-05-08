@@ -909,11 +909,14 @@ fadeOut
 }
 
 #file-browser {
-    height: 500px;
+    max-height: 300px;
     overflow-y: auto;
     width: 100%;
 }
 
+input.input_text{
+    color: black;
+}
 #file-browser ul {
     width: 100% !important;
 }
@@ -943,4 +946,35 @@ fadeOut
 #image-preview {
     max-width: 100px;
     width: 100px;
+}
+
+#btnBuilderView.active a, #btnSimulatorView.active a{
+    color: white;
+    background-color: rgb(8, 88, 154);
+    border: none;
+}
+
+#btnBuilderView.active span, #btnSimulatorView.active span{
+    position: absolute;
+    top: 30px;
+    left: 46px;
+    color: white;
+    display: inline;
+}
+
+#btnSimulatorView.active span {
+    left: 54px;
+}
+#btnBuilderView span, #btnSimulatorView span{
+    display: none;
+}
+
+#btnBuilderView a, #btnSimulatorView a{
+    color: #898989;
+}
+
+#warnings.warnings p {
+    color: red;
+    display: inline;
+    margin: 10px;
 }

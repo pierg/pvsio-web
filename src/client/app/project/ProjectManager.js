@@ -138,7 +138,7 @@ define(function (require, exports, module) {
                 }
                 // select the folder
                 pvsFilesListView.selectItem(event.path);
-            } else {
+            } else if (!event.isDirectory) {
                 if (!_projectManager.fileDescriptorExists(event.path)) {
                     f = new Descriptor(event.path);
                     if (_projectManager.isImage(event.path)) {
@@ -512,10 +512,11 @@ define(function (require, exports, module) {
     ProjectManager.prototype.readFileDialog = function (opt) {
         return new Promise(function (resolve, reject) {
             opt = opt || {};
+            opt.path = opt.path || "~";
             opt.filter = opt.filter ||
                 ((opt.encoding === "base64") ? MIME.getInstance().imageFilter : MIME.getInstance().modelFilter);
             new RemoteFileBrowser(opt.filter)
-                .open("~", { title: opt.title || "Select files (use shift key to select multiple files)" })
+                .open(opt.path, { title: opt.title || "Select files (use shift key to select multiple files)" })
                 .then(function (files) {
                     var paths = files.map(function (f) {
                         return f.path;
@@ -1025,9 +1026,12 @@ define(function (require, exports, module) {
      */
     ProjectManager.prototype.createProject = function (data) {
         return new Promise(function (resolve, reject) {
-            var nCalls = 0, success = true;
+            var success = true;
+            var descriptors = [];
+            var pvsiowebJSON = {};
+            pvsiowebJSON.version = "2.0";
             function finalise(p) {
-                nCalls++;
+                descriptors.push(project.addDescriptor("pvsioweb.json", JSON.stringify(pvsiowebJSON, null, " ")));
                 var previous = _projectManager.project();
                 p.project.initFromJSON(p.descriptors);
                 _projectManager.project(p.project);
@@ -1035,9 +1039,7 @@ define(function (require, exports, module) {
                 var evt = { type: "ProjectChanged", current: p.project, previous: previous };
                 fireProjectChanged(evt);
                 success = success && data.success;
-                if (nCalls === 2) {
-                    resolve(p.project);
-                }
+                resolve(p.project);
             }
             // sanity check
             if (!data || !data.projectName) {
@@ -1051,29 +1053,22 @@ define(function (require, exports, module) {
                 overWrite : data.overWrite,
                 silentMode: data.silentMode
             };
-            var descriptors = [];
             var project = new Project(data.projectName);
             return _projectManager.mkDir(data.projectName, opt).then(function (res) {
                 if (PVSioWebClient.serverOnLocalhost()) {
                     project.importRemoteFiles(data.pvsSpec).then(function (res) {
-                        if (res) { descriptors = descriptors.concat(res); }
-                        finalise({ project: project, descriptors: descriptors, success: true });
-                    }).catch(function (err) {
-                        finalise({ project: project, descriptors: descriptors, success: false });
-                    });
-                    project.importRemoteFiles(data.prototypeImage).then(function (res) {
-                        if (res && res.length > 0) {
+                        if (res) {
                             descriptors = descriptors.concat(res);
-                            descriptors.push(
-                                project.addDescriptor(
-                                    new Descriptor(
-                                        "pvsioweb.json",
-                                        JSON.stringify({ prototypeImage: res[0].name })
-                                    )
-                                )
-                            );
+                            pvsiowebJSON.mainPVSFile = res[0].path.split("/").slice(1).join("/");
                         }
-                        finalise({ project: project, descriptors: descriptors, success: true });
+                    }).then(function (res) {
+                        project.importRemoteFiles(data.prototypeImage).then(function (res) {
+                            if (res && res.length > 0) {
+                                descriptors = descriptors.concat(res);
+                                pvsiowebJSON.prototypeImage = res[0].path.split("/").slice(1).join("/");
+                            }
+                            finalise({ project: project, descriptors: descriptors });
+                        });
                     }).catch(function (err) {
                         finalise({ project: project, descriptors: descriptors, success: false });
                     });
@@ -1143,6 +1138,7 @@ define(function (require, exports, module) {
                                     code: "CANCELED_BY_USER",
                                     message: "Operation cancelled by the user"
                                 });
+                                view.remove();
                             });
                     } else {
                         formView.remove();
