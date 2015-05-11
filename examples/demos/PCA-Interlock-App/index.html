@@ -7,13 +7,15 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
+        <script src="js/js-libs/jquery-1.11.3.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="css/css-libs/960.css">
+        
+
         <link href="../../client/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <link href="../../client/app/plugins/graphbuilder/graph.css" rel="stylesheet" type="text/css"/>
         <link href="../../client/css/style.css" rel="stylesheet" type="text/css"/>
 
-
-        <link rel="stylesheet" type="text/css" media="all" href="style/960.css"/>
-        <link rel="stylesheet" type="text/css" media="all" href="style/style.css"/>
         <!--<script type="text/javascript" src="js/index.js"></script>-->
         <!--<script type="text/javascript" src="js/require.js"></script>-->
 
@@ -22,10 +24,19 @@
     <body>
         <div id="content" class="container_12" style="text-align: center;">
 
-            <div class="grid_6">
+            <div class="grid_12">
                 <h1>ICE Supervisor</h1>
-                <div id="monitor" class="console_log">
+                <div id="supervisorControls">
+                    <input type="button" id="startICENetwork" value="Start ICE Network Controller">
+                    <input type="button" id="stopICENetwork" value="Stop ICE Network Controller">
                 </div>
+                <div class="grid_12" style="text-align: center">
+                    <div id="devices">
+                    </div>
+                </div>
+                <div id="monitor" class="console_log grid_6 push_3">
+                </div>
+
             </div>
 
         </div>
@@ -39,7 +50,14 @@
     <script type="text/javascript" src="../../client/lib/backbone.js"></script>
     <script type="text/javascript" src="../../client/lib/handlebars-v1.1.0.js"></script>
     <script type="text/javascript" src="../../client/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/sapere-rendering.js"></script>
+    <script src="js/sapere-monitor.js"></script>
     <script src="../../client/require.js" data-main="js/index.js"></script>
 
+    <script type="text/javascript">
+    </script>
+    <script src="js/sapere-rendering.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/css-libs/animate.css" />
+    <link rel="stylesheet" type="text/css" href="css/css-libs/960.css">
 
 </html>

@@ -16,16 +16,15 @@
             <div class="grid_12">
             <h1>SAPERE</h1>
             </div>
-            <div class="grid_12">
-                <div id="monitor" class="console_log">
+            <div class="grid_12" style="text-align: center;">
+                <div id="supervisor">
                 </div>
             </div>
-            <div class="grid_12" style="text-align: left">
+            <div id="sapere" class="grid_12">
+                    <hr class="line">
+            </div>
+            <div class="grid_12" style="text-align: center">
                 <div id="devices">
-                </div>
-            </div>
-            <div class="grid_12" style="text-align: center; margin-top: 80px;">
-                <div id="orchestrator">
                 </div>
             </div>
 
@@ -37,6 +36,10 @@
         $(document).ready(function(){
             queueUpdateStatus();
             $('.tooltip').tooltipster();
+        });
+
+        $(window).resize(function () {
+            printConnectionsSapere();
         });
 
         function queueUpdateStatus(){
@@ -72,7 +75,5 @@
     <link rel="stylesheet" type="text/css" href="style/jquery.cosyAlert.css" />
     <link rel="stylesheet" type="text/css" href="style/tooltipster.css" />
     <link rel="stylesheet" type="text/css" href="style/960.css">
-
-
 
 </html>
