@@ -4,11 +4,9 @@
  * @date 14/05/2015 11:33 AM
  */
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50*/
-/*global define, Promise, d3*/
+/*global define, Promise*/
 define(function (require, exports, module) {
     "use strict";
-
-    var url;
     var _this;
 
     var nc_websocket_monitor;
@@ -29,31 +27,35 @@ define(function (require, exports, module) {
     }
 
     NCMonitor.prototype.connect = function () {
-        nc_websocket_monitor = new WebSocket(_this.url);
-        /*
-         * It starts the control process that send the information to NC
-         */
-        nc_websocket_monitor.onopen = function () {
-            console.log(">> Connected to ICE Network Controller!");
-        }
+        return new Promise(function (resolve, reject) {
+            nc_websocket_monitor = new WebSocket(_this.url);
+            /*
+             * It starts the control process that send the information to NC
+             */
+            nc_websocket_monitor.onopen = function () {
+                console.log(">> Connected to ICE Network Controller!");
+                resolve();
+            };
 
-        nc_websocket_monitor.onmessage = onMessageReceivedNCMonitor;
-        /*
-         * Close event
-         */
-        nc_websocket_monitor.onclose = function () {
-            console.log(">> Disconnected from ICE Network Controller (" + _this.url + ")");
-            nc_websocket_monitor = null;
-        };
-        /*
-         * Connection failed
-         */
-        nc_websocket_monitor.onerror = function () {
-            console.log("!! Unable to connect to ICE Network Controller (" + _this.url + ")");
-            nc_websocket_monitor = null;
-        };
-    }
-
+            nc_websocket_monitor.onmessage = onMessageReceivedNCMonitor;
+            /*
+             * Close event
+             */
+            nc_websocket_monitor.onclose = function () {
+                console.log(">> Disconnected from ICE Network Controller (" + _this.url + ")");
+                nc_websocket_monitor = null;
+                reject({ code: "CLOSED" });
+            };
+            /*
+             * Connection failed
+             */
+            nc_websocket_monitor.onerror = function () {
+                console.log("!! Unable to connect to ICE Network Controller (" + _this.url + ")");
+                nc_websocket_monitor = null;
+                reject({ code: "ERROR" });
+            };
+        });
+    };
 
     /**
      * Callback function when a message is received from the nc websocket
@@ -74,7 +76,8 @@ define(function (require, exports, module) {
              * Notifies when a device has been successfully added to Sapere
              */
             if (data.action === "add") {
-                if (data.type == "Supervisor") {
+
+                if (data.type === "Supervisor") {
                     printSupervisor(data);
                 }
                 else {
@@ -157,7 +160,8 @@ define(function (require, exports, module) {
      * @param element
      */
     function removeDevice(event) {
-        var id = event.currentTarget.parentElement.getAttribute("id")
+
+        var id = event.currentTarget.parentElement.getAttribute("id");
         var DeviceAction = {
             action: "remove",
             deviceID: id
@@ -170,7 +174,7 @@ define(function (require, exports, module) {
      * @param element
      */
     function toggleDevice(event) {
-        var id = event.currentTarget.parentElement.getAttribute("id")
+        var id = event.currentTarget.parentElement.getAttribute("id");
         var DeviceAction = {
             action: "toggle",
             deviceID: id
@@ -178,13 +182,14 @@ define(function (require, exports, module) {
         nc_websocket_monitor.send(JSON.stringify(DeviceAction));
     }
 
-    function toggleDevicebyID(id) {
-        var DeviceAction = {
-            action: "toggle",
-            deviceID: id
-        };
-        nc_websocket_monitor.send(JSON.stringify(DeviceAction));
-    }
+
+//    function toggleDevicebyID(id) {
+//        var DeviceAction = {
+//            action: "toggle",
+//            deviceID: id
+//        };
+//        nc_websocket_monitor.send(JSON.stringify(DeviceAction));
+//    }
 
 
     function printDeviceElement(data) {
