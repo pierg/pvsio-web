@@ -1,7 +1,7 @@
 /**
  * Created by piergiuseppe on 4/13/15.
  */
-var socket = new WebSocket("ws://localhost:8080/SapereEE/monitor");
+var socket = new WebSocket("ws://localhost:8080/NetworkController/monitor");
 socket.onmessage = onMessage;
 
 

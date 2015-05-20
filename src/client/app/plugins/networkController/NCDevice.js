@@ -24,7 +24,7 @@ define(function (require, exports, module) {
      */
     function NCDevice(device, opt) {
         opt = opt || {};
-        this.url = opt.url || "ws://localhost:8080/SapereEE/actions";
+        this.url = opt.url || "ws://localhost:8080/NetworkController/actions";
         this.deviceID = device.id;
         this.deviceType = device.type;
         this.deviceDescription = device.description || (device.type + "" + device.id);
@@ -36,6 +36,7 @@ define(function (require, exports, module) {
 
     var nc_websocket_device;
     var deviceAdded = false;
+    var deviceON = false;
     var _this;
 
     NCDevice.prototype.connect = function () {
@@ -81,6 +82,33 @@ define(function (require, exports, module) {
         }
         else {
             console.log("!! " + _this.deviceID + " already added !!")
+        }
+    };
+
+
+    NCDevice.prototype.turnON = function(to, message) {
+        if(!deviceON){
+            var DeviceAction = {
+                action: "turnON",
+                deviceID: _this.deviceID,
+            };
+            nc_websocket_device.send(JSON.stringify(DeviceAction));
+        }
+        else{
+            console.log("!!! Device already ON !!! ");
+        }
+    };
+
+    NCDevice.prototype.turnOFF = function(to, message) {
+        if(deviceON){
+            var DeviceAction = {
+                action: "turnOFF",
+                deviceID: _this.deviceID,
+            };
+            nc_websocket_device.send(JSON.stringify(DeviceAction));
+        }
+        else{
+            console.log("!!! Device already OFF !!! ");
         }
     };
 
@@ -130,6 +158,14 @@ define(function (require, exports, module) {
             if (device.action === "remove") {
                 deviceAdded = false;
                 console.log("<- " + _this.deviceID + " removed from NC");
+            }
+            if (device.action === "on") {
+                deviceON = true;
+                console.log("<- " + _this.deviceID + " is now turned ON");
+            }
+            if (device.action === "off") {
+                deviceON = false;
+                console.log("<- " + _this.deviceID + " is now switched OFF");
             }
             if (device.action === "update") {
                 console.log("<- " + device.message);

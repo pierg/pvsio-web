@@ -23,7 +23,7 @@ define(function (require, exports, module) {
      */
     function NCMonitor(opt) {
         opt = opt || {};
-        this.url = opt.url || "ws://localhost:8080/SapereEE/monitor";
+        this.url = opt.url || "ws://localhost:8080/NetworkController/monitor";
         _this = this;
         return this;
     }
