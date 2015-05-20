@@ -4,6 +4,7 @@
  * @date 14/05/2015 11:33 AM
  */
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50*/
+
 /*global define, Promise*/
 define(function (require, exports, module) {
     "use strict";
@@ -85,7 +86,35 @@ define(function (require, exports, module) {
             nc_websocket_device.send(JSON.stringify(SupervisorAction));
         }
         else {
-            console.log("!! " + _this.deviceID + " already added !!");
+            console.log("!! " + _this.deviceID + " already added !!")
+        }
+    };
+
+
+    NCDevice.prototype.turnON = function(to, message) {
+        if(!deviceON){
+            var DeviceAction = {
+                action: "turnON",
+                deviceID: _this.deviceID,
+            };
+            nc_websocket_device.send(JSON.stringify(DeviceAction));
+        }
+        else{
+            console.log("!!! Device already ON !!! ");
+        }
+    };
+
+    NCDevice.prototype.turnOFF = function(to, message) {
+        if(deviceON){
+            var DeviceAction = {
+                action: "turnOFF",
+                deviceID: _this.deviceID,
+            };
+            nc_websocket_device.send(JSON.stringify(DeviceAction));
+        }
+        else{
+            console.log("!!! Device already OFF !!! ");
+
         }
     };
 
@@ -135,6 +164,14 @@ define(function (require, exports, module) {
             if (device.action === "remove") {
                 deviceAdded = false;
                 console.log("<- " + _this.deviceID + " removed from NC");
+            }
+            if (device.action === "on") {
+                deviceON = true;
+                console.log("<- " + _this.deviceID + " is now turned ON");
+            }
+            if (device.action === "off") {
+                deviceON = false;
+                console.log("<- " + _this.deviceID + " is now switched OFF");
             }
             if (device.action === "update") {
                 console.log("<- " + device.message);

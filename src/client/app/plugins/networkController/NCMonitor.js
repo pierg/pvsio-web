@@ -7,7 +7,6 @@
 /*global define, Promise*/
 define(function (require, exports, module) {
     "use strict";
-
     var _this;
 
     var nc_websocket_monitor;
@@ -58,7 +57,6 @@ define(function (require, exports, module) {
         });
     };
 
-
     /**
      * Callback function when a message is received from the nc websocket
      * @param event
@@ -78,6 +76,7 @@ define(function (require, exports, module) {
              * Notifies when a device has been successfully added to Sapere
              */
             if (data.action === "add") {
+
                 if (data.type === "Supervisor") {
                     printSupervisor(data);
                 }
@@ -161,6 +160,7 @@ define(function (require, exports, module) {
      * @param element
      */
     function removeDevice(event) {
+
         var id = event.currentTarget.parentElement.getAttribute("id");
         var DeviceAction = {
             action: "remove",
@@ -181,6 +181,7 @@ define(function (require, exports, module) {
         };
         nc_websocket_monitor.send(JSON.stringify(DeviceAction));
     }
+
 
 //    function toggleDevicebyID(id) {
 //        var DeviceAction = {
