@@ -197,6 +197,7 @@ define(function (require, exports, module) {
     Button.prototype.createImageMap = function (opt) {
         opt = opt || {};
         opt.callback = opt.callback || function () {};
+
         var area = opt.area || Button.prototype.parentClass.createImageMap.apply(this, arguments),
             widget = this,
             f,

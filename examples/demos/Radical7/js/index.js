@@ -170,13 +170,11 @@ require(["pvsioweb/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "w
         if the first parameter is truthy, then an error occured in the process of evaluating the gui action sent
     */
     function onMessageReceived(err, event) {
-
         function prettyprintState(str) {
             var state = stateParser.parse(str);
             state.spo2_label = state.spo2_label.replace(/"/g, "");
             return JSON.stringify(state, null, " ");
         }
-
         if (!err) {
             client.getWebSocket().lastState(event.data);
             var dbg = prettyprintState(event.data.toString());

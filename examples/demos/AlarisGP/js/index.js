@@ -284,6 +284,7 @@ require(["widgets/Button", "widgets/SingleDisplay", "widgets/DoubleDisplay", "wi
         var node = document.getElementById(logger);
         node.appendChild(newP);
         node.scrollTop = node.scrollHeight;
+        //$("#" + logger).animate({ scrollTop: $("#" + logger)[0].scrollHeight}, 500);
     }
 
 

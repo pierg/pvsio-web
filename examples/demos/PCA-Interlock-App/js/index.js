@@ -35,7 +35,6 @@ require([
             "(" + client.getWebSocket().lastState() + ");",
             onMessageReceived);
     }
-
     function start_tick () {
         if (!tick) {
             tick = setInterval(function () {
@@ -43,14 +42,12 @@ require([
             }, 2000);
         }
     }
-
     function stop_tick () {
         if (tick) {
             clearInterval(tick);
             tick = null;
         }
     }
-
 
 
     var ncDevice = new NCDevice({id: deviceID, type: deviceType});
@@ -231,12 +228,12 @@ require([
             app.pump.vtbi.hide();
         }
     }    
-
+    
     function startNetworkController() {
         var msg = "Starting ICE Network Controller...";
         console.log(msg);
         return new Promise(function (resolve, reject) {
-            client.getWebSocket().send({ type: "startNCEE" }, function(err) {
+            client.getWebSocket().send({ type: "startSapereEE" }, function(err) {
                 if (!err) {
                     msg = "ICE Network Controller started successfully!";
                     console.log(msg);
@@ -245,29 +242,11 @@ require([
                     msg = "Error while starting ICE Network Controller (" + JSON.stringify(err) + ")";
                     console.log(msg);
                     reject(err);
-                }
-            });
-        });
-    }
-    function stopNCEE() {
-        var msg = "Stopping ICE Network Controller...";
-        console.log(msg);
-        return new Promise(function (resolve, reject) {
-            client.getWebSocket().send({ type: "stopNCEE" }, function(err) {
-                if (!err) {
-                    msg = "ICE Network Controller stopped.";
-                    console.log(msg);
-
                     resolve(msg);
                 }
             });
         });
     }
-
-    //function init() {
-    //    d3.select("#startICENetwork").on("click", startNCEE);
-    //    d3.select("#stopICENetwork").on("click", stopNCEE);
-    //}
 
     /*
      * Register event listener for websocket connection to the server.
@@ -304,7 +283,6 @@ require([
                 console.log(err);
             }
         });
-
     }).addListener('WebSocketConnectionClosed', function () {
         logOnDiv('PVS Process closed', 'monitor');
         console.log('web socket closed');
@@ -317,5 +295,6 @@ require([
      */
     logOnDiv('Connecting to the PVSio server...', 'monitor');
     client.connectToServer();
+
 
 });

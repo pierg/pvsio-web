@@ -1,11 +1,12 @@
 /**
  * Created by piergiuseppe on 4/13/15.
  */
-var socket = new WebSocket("ws://localhost:8080/NetworkController/monitor");
+var socket = new WebSocket("ws://localhost:8080/SapereEE/monitor");
 socket.onmessage = onMessage;
 
 
 function logOnDiv(msg, logger) {
+
     var p = $("<p>", {class: "console_element"});
     p.html(msg);
     $("#" + logger)
@@ -26,8 +27,8 @@ function onMessage(event) {
         var data = JSON.parse(event.data);
 
         if (data.action === "add") {
-            if (data.type == "Supervisor") {
-                printSupervisor(data);
+            if (data.type == "Orchestrator") {
+                printOrchestrator(data);
             }
             else {
                 printDeviceElement(data);
@@ -42,7 +43,6 @@ function onMessage(event) {
             device_div.one('webkitAnimationEnd oanimationend msAnimationEnd animationend',
                 function (e) {
                     device_div.remove();
-                    printConnectionsSapere();
                 });
             cosyAlert("Device " + data.deviceID + " Removed", "success", {vPos: 'top', hPos: 'left'});
         }
@@ -64,7 +64,7 @@ function onMessage(event) {
 
         if (data.action === "publish") {
             var container_div = $("#" + data.deviceID);
-            var agents_span = container_div.find(".agents_block");
+            var agents_span = container_div.find(".device_agents");
 
             var circle_div = $("<div>", {
                 id: data.deviceID + "-pub-" + data.publishKey,
@@ -88,7 +88,7 @@ function onMessage(event) {
 
         if (data.action === "subscribe") {
             var container_div = $("#" + data.deviceID);
-            var agents_span = container_div.find(".agents_block");
+            var agents_span = container_div.find(".device_agents");
 
             var circle_div = $("<div>", {
                 id: data.deviceID + "-sub-" + data.subscribingKey,
@@ -112,7 +112,7 @@ function onMessage(event) {
 
         if (data.action === "publish-remove") {
             var container_div = $("#" + data.deviceID);
-            var agents_span = container_div.find(".agents_block");
+            var agents_span = container_div.find(".device_agents");
             var circle_div = agents_span.find("#" + data.deviceID + "-pub-" + data.publishKey);
             var circle_figure = agents_span.find("#" + data.deviceID + "-pubC-" + data.publishKey);
 
@@ -126,7 +126,7 @@ function onMessage(event) {
 
         if (data.action === "subscribe-remove") {
             var container_div = $("#" + data.deviceID);
-            var agents_span = container_div.find(".agents_block");
+            var agents_span = container_div.find(".device_agents");
             var circle_div = agents_span.find("#" + data.deviceID + "-sub-" + data.subscribingKey);
             var circle_figure = agents_span.find("#" + data.deviceID + "-subC-" + data.subscribingKey);
 
@@ -158,8 +158,7 @@ function onMessage(event) {
 
     } // NO JSON
     else {
-        //logOnDiv(text, "monitor");
-        console.log(text);
+        logOnDiv(text, "monitor");
     }
 
 }
@@ -167,10 +166,6 @@ function onMessage(event) {
 function printDeviceElement(data) {
     var container = $("#devices");
     var child = $("<div>", {id: data.deviceID, class: data.type + " animated bounceInUp device"});
-    child.one('webkitAnimationEnd oanimationend msAnimationEnd animationend',
-        function (e) {
-            printConnectionsSapere();
-        });
 
     var id;
     var type;
@@ -190,37 +185,23 @@ function printDeviceElement(data) {
     ;
     description = $("<span>", {class: "device_description"}).html("<b>Comments:</b> " + data.description);
     remove = $("<span>", {class: "device_remove"}).html("<a href=\"#!\" class=\"remove_switch\" OnClick=removeDevice(" + data.deviceID + ")>Remove device</a>");
-    agents = $("<span>", {class: "agents_block device_agents"});
+    agents = $("<span>", {class: "device_agents"});
 
     child.append(id).append(type).append(status).append(description).append(remove).append(agents);
     container.append(child);
 
 }
 
-function printConnectionsSapere(){
-
-    $('.device').connections('remove');
-    $('.device').connections({
-        to: $('#sapere'),
-        class: 'channel'
-    });
-
-}
-
-function printSupervisor(data) {
-    var container = $("#supervisor");
+function printOrchestrator(data) {
+    var container = $("#orchestrator");
     var child = $("<div>", {id: data.deviceID, class: data.type + " animated bounceInUp device"});
-    child.one('webkitAnimationEnd oanimationend msAnimationEnd animationend',
-        function (e) {
-            printConnectionsSapere();
-        });
 
     var id;
     var status;
     var remove;
     var agents;
 
-    id = $("<span>", {class: "device_id", style: "margin-top: 20px"}).html("PCA-Interlock-App");
+    id = $("<span>", {class: "device_id", style: "margin-top: 20px"}).html(data.deviceID);
 
     if (data.status === "ON") {
         child.removeClass("bounceInUp").removeClass("shake").addClass("pulse infinite");
@@ -229,12 +210,10 @@ function printSupervisor(data) {
         status = $("<span>", {class: "device_status"}).html("<b>Status:</b> " + data.status + " (<a href=\"#!\" class=\"toggle_switch\" OnClick=toggleDevice(" + data.deviceID + ")>Turn ON</a>)");
     }
     remove = $("<span>", {class: "device_remove"}).html("<a href=\"#!\" class=\"remove_switch\" OnClick=removeDevice(" + data.deviceID + ")>Remove device</a>");
-    agents = $("<span>", {class: "agents_block supervisor_agents"});
+    agents = $("<span>", {class: "device_agents", style: "margin-top: -110px"});
 
     child.append(id).append(status).append(remove).append(agents);
     container.append(child);
-
-
 
 }
 

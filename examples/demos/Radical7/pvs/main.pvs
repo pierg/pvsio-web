@@ -3,11 +3,6 @@ main: THEORY
 
   Alarm: TYPE = { off, mute, alarm }
 
-  MonitorOutput: TYPE = [# spo2: real #]
-  MonitorAPI: TYPE = [#
-    output: MonitorOutput
-  #]
-
   state: TYPE = [#
     id: string,
     spo2: real, % sensor data - blood oxigenation level (percentage)
@@ -58,6 +53,7 @@ main: THEORY
     rra_fail := false,
     isOn := false
   #)
+
 
   per_on(st: state): bool = true
   on(st: (per_on)): state = st WITH [ isOn := NOT isOn(st) ]

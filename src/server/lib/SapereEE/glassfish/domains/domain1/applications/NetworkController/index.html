@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="scripts/js-libs/jquery-1.11.3.min.js"></script>
+        <script src="scripts/js-libs/underscore-min.js"></script>
+        <script src="scripts/js-libs/backbone-min.js"></script>
+        <script src="scripts/js-libs/jquery.cosyAlert.min.js"></script>
+        <script type="text/javascript" src="scripts/js-libs/jquery.tooltipster.min.js"></script>
+        <script src="scripts/js-libs/jquery.connections.js"></script>
+        <link rel="stylesheet" type="text/css" href="style/style.css">
+        <link rel="stylesheet" type="text/css" href="style/css-libs/960.css">
+
+    </head>
+    <body>
+        <div class="container_12" style="text-align: center;">
+            <div class="grid_12">
+            <h1>SAPERE</h1>
+            </div>
+            <div class="grid_12" style="text-align: center;">
+                <div id="supervisor">
+                </div>
+            </div>
+            <div id="sapere" class="grid_12">
+                <hr class="line">
+            </div>
+            <div class="grid_12" style="text-align: center">
+                <div id="devices">
+                </div>
+            </div>
+            <div id="StructureTree">
+
+            </div>
+            <div id="LSAtree" class="">
+
+            </div>
+
+            <!--<div id="monitor" class="grid_12 console_log">-->
+            <!--</div>-->
+
+        </div>
+
+    </body>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            queueUpdateStatus();
+            $('.tooltip').tooltipster();
+        });
+
+        $(window).resize(function () {
+            printConnectionsSapere();
+        });
+
+        function queueUpdateStatus(){
+            $('#queue-status').html(($.cosyAlert.configuration.useQueue ? 'enabled' : 'disabled'));
+        }
+        function queueEnable(){
+            $.cosyAlert.configuration.useQueue = true;
+            queueUpdateStatus();
+        }
+        function queueDisable(){
+            $.cosyAlert.configuration.useQueue = false;
+            queueUpdateStatus();
+        }
+
+        $.cosyAlert.configuration = {
+            defaultType : 'alert',
+            useQueue : false
+        };
+        $.cosyAlert.configurationAlert = {
+            container : null,
+            vPos : 'top',
+            hPos : 'center',
+            autoHide : true,
+            autoHideTime : 4000,
+            showTime : 400,
+            hideTime : 600,
+            onShowComplete : null,
+            onHideComplete : null
+        };
+    </script>
+    <script src="scripts/js-libs/pretty-json-min.js"></script>
+    <script src="scripts/sapere.rendering.extended.js"></script>
+    <script src="scripts/sapere.monitor.extended.js"></script>
+    <link rel="stylesheet" type="text/css" href="style/css-libs/animate.css" />
+    <link rel="stylesheet" type="text/css" href="style/css-libs/jquery.cosyAlert.css" />
+    <link rel="stylesheet" type="text/css" href="style/css-libs/tooltipster.css" />
+    <link rel="stylesheet" type="text/css" href="style/css-libs/960.css">
+    <link rel="stylesheet" type="text/css" href="style/css-libs/pretty-json.css">
+
+</html>
