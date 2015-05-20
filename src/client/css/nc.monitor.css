@@ -12,7 +12,6 @@
 
 body{
     font-family: 'Andale Mono', AndaleMono, monospace;
-    /*text-align: center;*/
 }
 
 
@@ -202,15 +201,6 @@ hr.line {
     background-image:      -o-linear-gradient(left, lightgrey, #333, lightgrey);
 }
 
-/*#sapere_nodes{*/
-/*text-align: center;*/
-/*margin-top: 100px;*/
-/*}*/
-
-/*.node_element{*/
-/*font-size: medium;*/
-/*color: black;*/
-/*}*/
 
 .LSAtree{
     text-align: center;
