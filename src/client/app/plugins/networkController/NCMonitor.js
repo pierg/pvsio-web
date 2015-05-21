@@ -75,8 +75,7 @@ define(function (require, exports, module) {
             /**
              * Notifies when a device has been successfully added to Sapere
              */
-            if (data.action === "add") {
-
+            if (data.action === "add"){
                 if (data.type === "Supervisor") {
                     printSupervisor(data);
                 }
@@ -181,15 +180,6 @@ define(function (require, exports, module) {
         };
         nc_websocket_monitor.send(JSON.stringify(DeviceAction));
     }
-
-
-//    function toggleDevicebyID(id) {
-//        var DeviceAction = {
-//            action: "toggle",
-//            deviceID: id
-//        };
-//        nc_websocket_monitor.send(JSON.stringify(DeviceAction));
-//    }
 
 
     function printDeviceElement(data) {

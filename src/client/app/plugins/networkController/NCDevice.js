@@ -152,15 +152,23 @@ define(function (require, exports, module) {
     };
 
     function isJSON(text){
-        if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
-                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))){
+        try {
+            var c = JSON.parse(text);
             return true;
         }
-        else{
+        catch (err) {
             return false;
         }
     }
+
+    //if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
+    //        replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+    //        replace(/(?:^|:|,)(?:\s*\[)+/g, ''))){
+    //    return true;
+    //}
+    //else{
+    //    return false;
+    //}
 
     /**
      * Callback function when a message is received from the nc websocket

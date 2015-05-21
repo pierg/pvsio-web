@@ -174,7 +174,7 @@ function onMessageReceivedSapere(event) {
                 class: 'connection',
             });
             var connections = $('connection');
-            setInterval(function() { connections.connections('update') }, 1000);
+            setInterval(function() { connections.connections('update') }, 2000);
         }
 
         /**
@@ -191,9 +191,31 @@ function onMessageReceivedSapere(event) {
                 class: 'connection',
             });
             var connections = $('connection');
-            setInterval(function() { connections.connections('update') }, 1000);
+            setInterval(function() { connections.connections('update') }, 2000);
 
         }
+
+        /**
+         * Notifies when a the device connected to the agent received a message;
+         */
+        if (data.action === "msg-update") {
+            var divSub = $('#' + data.subscriber_ID + '-sub-' + data.key);
+
+            var divParent = divSub.parent();
+            var oldDiv = divParent.find('.message_delivered');
+            if (oldDiv != null) {
+                oldDiv.remove();
+            }
+            var circle_div = $("<div>", {
+                class: "message_delivered " + " animated fadeOutDown"
+            });
+            divParent.append(circle_div);
+            setInterval(function () {
+                circle_div.remove();
+            }, 700);
+
+        }
+
 
         /**
          * Sends the whole LSASpace of Sapere
@@ -201,6 +223,7 @@ function onMessageReceivedSapere(event) {
         if (data.action === "lsaspace") {
             printLSASpace(data.space, "monitor");
         }
+
 
     }
 // NO JSON
@@ -258,5 +281,5 @@ function tryJSON (jsonString){
     catch (e) { }
 
     return false;
-};
+}
 

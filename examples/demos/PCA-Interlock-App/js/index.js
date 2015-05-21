@@ -281,6 +281,7 @@ require([
                     // FIXME: receiving error when glassfish is already running
                     ncMonitor.connect().then(function (res) {
                         ncDevice.connect().then(function (res) {
+                            ncDevice.turnON();
                             start_tick();
                         }).catch(function (err) { console.log(err); });
                     }).catch(function (err) { console.log(err); });                                   

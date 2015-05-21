@@ -324,8 +324,10 @@ require([
                 client.getWebSocket().sendGuiAction("init(0);", onMessageReceived);
                 d3.select(".demo-splash").style("display", "none");
                 d3.select(".content").style("display", "block");
-                ncDevice.connect();
-
+                ncDevice.connect().then(
+                    function(res){
+                        ncDevice.turnON();
+                    });
             });
         }).addListener("WebSocketConnectionClosed", function (e) {
             console.log("web socket closed");

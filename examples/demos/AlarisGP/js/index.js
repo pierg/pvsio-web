@@ -604,6 +604,7 @@ require([
             //start pvs process
             client.getWebSocket().startPVSProcess({name: "main.pvs", demoName: "AlarisGP/pvs"}, function (err, event) {
                 ncDevice.connect().then(function(res){
+                    ncDevice.turnON();
                     start_tick();
                 });
             });
