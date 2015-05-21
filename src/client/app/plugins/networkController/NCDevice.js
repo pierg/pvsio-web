@@ -37,6 +37,7 @@ define(function (require, exports, module) {
 
     var nc_websocket_device;
     var deviceAdded = false;
+    var deviceON = false;
     var _this;
 
     NCDevice.prototype.connect = function () {
@@ -48,9 +49,6 @@ define(function (require, exports, module) {
             nc_websocket_device.onopen = function () {
                 console.log(">> Connected to ICE Network Controller!");
                 addDevice();
-                _this.fire({
-                    type: "connected"
-                });
                 resolve();
             };
 
@@ -119,28 +117,50 @@ define(function (require, exports, module) {
     };
 
     NCDevice.prototype.sendControlData = function(to, message) {
-        console.log("-> " + message + "\n - " + to);
-        var payload = {
-            to: to,
-            msg: message
-        };
-        var DeviceAction = {
-            action: "orchestrate",
-            deviceID: _this.deviceID,
-            message: payload
-        };
-        nc_websocket_device.send(JSON.stringify(DeviceAction));
+        if(_this.deviceType === "Supervisor"){
+            console.log("-> " + message + "\n - " + to);
+            var payload = {
+                to: to,
+                msg: message
+            };
+            var DeviceAction = {
+                action: "orchestrate",
+                deviceID: _this.deviceID,
+                message: payload
+            };
+            nc_websocket_device.send(JSON.stringify(DeviceAction));
+        }
+        else{
+            console.log("!!! Attention, this function is reserved to Devices with type 'Supervisor' !!! ");
+            console.log("!!! Use sendDataUpdate instead !!! ");
+        }
     };
 
     NCDevice.prototype.sendDataUpdate = function (message) {
-        console.log("-> " + message);
-        var DeviceAction = {
-            action: "update",
-            deviceID: _this.deviceID,
-            message: message
-        };
-        nc_websocket_device.send(JSON.stringify(DeviceAction));
+        if(_this.deviceType != "Supervisor") {
+            console.log("-> " + message);
+            var DeviceAction = {
+                action: "update",
+                deviceID: _this.deviceID,
+                message: message
+            };
+            nc_websocket_device.send(JSON.stringify(DeviceAction));
+        }
+        else{
+            console.log("!!! Attention, this function is reserved to Devices different from 'Supervisor' !!! ");
+            console.log("!!! Use sendControlData instead !!! ");        }
     };
+
+    function isJSON(text){
+        if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
+                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
     /**
      * Callback function when a message is received from the nc websocket
@@ -151,34 +171,67 @@ define(function (require, exports, module) {
         var text = event.data;
 
         // JSON FORMAT
-        if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
-                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+        if (isJSON(text)) {
 
-            var device = JSON.parse(event.data);
+            var payload = JSON.parse(event.data);
 
-            if (device.action === "add") {
+            if (payload.action === "add") {
                 deviceAdded = true;
                 console.log("<- " + _this.deviceID + " added to NC");
             }
-            if (device.action === "remove") {
+            if (payload.action === "remove") {
                 deviceAdded = false;
                 console.log("<- " + _this.deviceID + " removed from NC");
             }
-            if (device.action === "on") {
+            if (payload.action === "on") {
                 deviceON = true;
                 console.log("<- " + _this.deviceID + " is now turned ON");
             }
-            if (device.action === "off") {
+            if (payload.action === "off") {
                 deviceON = false;
                 console.log("<- " + _this.deviceID + " is now switched OFF");
             }
-            if (device.action === "update") {
-                console.log("<- " + device.message);
-                _this.fire({
-                    type: "update",
-                    message: device.message
-                });
+
+            /**
+             * Update message from another device subscribed to
+             */
+            if (payload.action === "update") {
+                // orchestrate message
+                if(isJSON(payload.message)){
+                    var content = JSON.parse(payload.message);
+                    // filtering destination device
+                    if(content.to === _this.deviceID){
+                        console.log("<- orchestrate message from: " + payload.from);
+                        _this.fire({
+                            type: "orchestrate",
+                            from: payload.from,
+                            message: content.msg
+                        });
+                    }
+                }
+                else{
+                    console.log("<- update message from: " + payload.from);
+                    _this.fire({
+                        type: "update",
+                        from: payload.from,
+                        message: payload.message
+                    });
+                }
+            }
+
+            /**
+             * Orchestrate message from a Supervisor
+             */
+            if (payload.action === "orchestrate") {
+
+                if(payload.message.to === _this.deviceID){
+                    console.log("<- update message from: " + payload.from);
+                    _this.fire({
+                        type: "update",
+                        from: payload.from,
+                        message: payload.message
+                    });
+                }
             }
         }
         // NO JSON

@@ -18,7 +18,9 @@ require([
     'stateParser',
     'NCDevice',
     'NCMonitor',
-    "widgets/med/PatientMonitorDisplay", "widgets/TripleDisplay", "widgets/ButtonActionsQueue"
+    "widgets/med/PatientMonitorDisplay",
+    "widgets/TripleDisplay",
+    "widgets/ButtonActionsQueue"
 ], function (PVSioWebClient, stateParser, NCDevice, NCMonitor, PatientMonitorDisplay, TripleDisplay, ButtonActionsQueue) {
 
     var deviceID = "Supervisor_ID";
@@ -28,12 +30,18 @@ require([
     var client;
     var tick = null;
 
-    function parseNCMessage(event){
-        var res = stateParser.parse(event.message);
-        client.getWebSocket()
-            .sendGuiAction("update_spo2(" + res.spo2 + ")" +
-            "(" + client.getWebSocket().lastState() + ");",
-            onMessageReceived);
+    function parseNCUpdate(event){
+
+        var from = event.from;
+
+        if (from === "Radical"){
+
+            var res = stateParser.parse(event.message);
+            client.getWebSocket()
+                .sendGuiAction("update_spo2(" + res.spo2 + ")" +
+                "(" + client.getWebSocket().lastState() + ");",
+                onMessageReceived);
+        }
     }
     function start_tick () {
         if (!tick) {
@@ -51,8 +59,7 @@ require([
 
 
     var ncDevice = new NCDevice({id: deviceID, type: deviceType});
-    ncDevice.addListener("update", parseNCMessage);
-    ncDevice.addListener("connected", start_tick);
+    ncDevice.addListener("update", parseNCUpdate);
 
     var ncMonitor = new NCMonitor({});
 
