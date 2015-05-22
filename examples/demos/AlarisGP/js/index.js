@@ -430,13 +430,13 @@ require([
          if the first parameter is truthy, then an error occured in the process of evaluating the gui action sent
          */
         function onMessageReceived(err, event) {
+            function prettyprintState(str) {
+                var state = stateParser.parse(str);
+                return JSON.stringify(state, null, " ");
+            }
+
             if(event.data.toString().indexOf("(#") === 0) {
 
-
-                function prettyprintState(str) {
-                    var state = stateParser.parse(str);
-                    return JSON.stringify(state, null, " ");
-                }
 
                 d3.select(".demo-splash").style("display", "none");
                 d3.select(".content").style("display", "block");
