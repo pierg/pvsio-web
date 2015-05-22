@@ -73,11 +73,11 @@ require([
             }
         }
 
-        function errorMessage(event){
+        function errorMessage(event) {
             console.log("!!! " + event.message);
         }
 
-        function notifyMessage(event){
+        function notifyMessage(event) {
             console.log(">>> " + event.message);
         }
 
@@ -253,6 +253,10 @@ require([
                     return "QUIT";
                 } else if (fn.toUpperCase() === "FKEEP") {
                     return "KEEP";
+                } else if (fn.toUpperCase() === "FYES") {
+                    return "YES";
+                } else if (fn.toUpperCase() === "FNO") {
+                    return "NO";
                 }
                 return fn;
             }
@@ -320,7 +324,7 @@ require([
             if (res.middisp_dtime === "TRUE") {
                 alaris.middisp_dtime.renderLabel("TIME");
                 alaris.middisp_dtime.renderValue(evaluate(res.device.time));
-                alaris.middisp_dtime.renderUnits("sec");
+                alaris.middisp_dtime.renderUnits("h");
             } else {
                 alaris.middisp_dtime.hide();
             }
@@ -344,7 +348,7 @@ require([
 
             function topline2options(msg) {
                 msg = msg.toUpperCase();
-                if (msg === "HOLDING" || msg === "SETRATE") {
+                if (msg === "HOLDING" || msg === "SETRATE" || msg === "ATTENTION") {
                     return {blinking: true};
                 }
                 return {};
@@ -374,6 +378,19 @@ require([
                 clearInterval(tick);
                 tick = null;
             }
+        }
+
+        /**
+         * @function logOnDiv
+         * @description Utility function, sends messages to different div elements in the html page
+         */
+        function logOnDiv(msg, logger) {
+            var newP = document.createElement("p");
+            newP.innerHTML = msg;
+            var node = document.getElementById(logger);
+            node.appendChild(newP);
+            node.scrollTop = node.scrollHeight;
+            //$("#" + logger).animate({ scrollTop: $("#" + logger)[0].scrollHeight}, 500);
         }
 
 
@@ -413,43 +430,59 @@ require([
          if the first parameter is truthy, then an error occured in the process of evaluating the gui action sent
          */
         function onMessageReceived(err, event) {
-            function prettyprintState(str) {
-                var state = stateParser.parse(str);
-                return JSON.stringify(state, null, " ");
-            }
+            if(event.data.toString().indexOf("(#") === 0) {
 
-            d3.select(".demo-splash").style("display", "none");
-            d3.select(".content").style("display", "block");
-            d3.select(".controls").style("display", "block");
 
-            if (!err) {
-                var dbg = prettyprintState(event.data.toString());
-                var date = new Date();
-                log({data: dbg, date: date, id: event.id, type: "frompvs"});
+                function prettyprintState(str) {
+                    var state = stateParser.parse(str);
+                    return JSON.stringify(state, null, " ");
+                }
 
-                var res = event.data.toString();
-                if (res.indexOf("(#") === 0) {
-                    res = stateParser.parse(event.data.toString());
-                    if (res) {
-                        render_infusion_set_status(res);
-                        render_mains_status(res);
-                        render_LEDs(res);
-                        render_topline(res);
-                        render_fndisp(res);
-                        render_middisp_drate(res);
-                        render_middisp_dvtbi(res);
-                        render_middisp_dvol(res);
-                        render_middisp_dtime(res);
-                        render_middisp_dbags(res);
-                        if (res.device["powered_on?"] === "TRUE") {
-                            start_tick();
-                        } else {
-                            stop_tick();
+                d3.select(".demo-splash").style("display", "none");
+                d3.select(".content").style("display", "block");
+                d3.select(".controls").style("display", "block");
+
+                if (!err) {
+                    var dbg = prettyprintState(event.data.toString());
+                    var date = new Date();
+                    log({data: dbg, date: date, id: event.id, type: "frompvs"});
+
+                    var state = stateParser.parse(event.data.toString());
+                    var msg = "(# topline:=" + state.topline + ", " +
+                        "rate:=" + state.device.infusionrate + ", " +
+                        "vtbi:=" + state.device.vtbi + ", " +
+                        "volume:=" + state.device.volumeinfused + ", " +
+                        "id:=" + state.id + ", " +
+                        "isOn:=" + state.device["powered_on?"] + " #)";
+                    ncDevice.sendDataUpdate(msg);
+
+                    var res = event.data.toString();
+                    if (res.indexOf("(#") === 0) {
+                        res = stateParser.parse(event.data.toString());
+                        if (res) {
+                            render_infusion_set_status(res);
+                            render_mains_status(res);
+                            render_LEDs(res);
+                            render_topline(res);
+                            render_fndisp(res);
+                            render_middisp_drate(res);
+                            render_middisp_dvtbi(res);
+                            render_middisp_dvol(res);
+                            render_middisp_dtime(res);
+                            render_middisp_dbags(res);
+                            if (res.device["powered_on?"] === "TRUE") {
+                                start_tick();
+                            } else {
+                                stop_tick();
+                            }
                         }
                     }
+                } else {
+                    console.log(err);
                 }
-            } else {
-                console.log(err);
+            }
+            else{
+                console.log(event.data.toString());
             }
         }
 
@@ -611,7 +644,7 @@ require([
             console.log("web socket connected");
             //start pvs process
             client.getWebSocket().startPVSProcess({name: "main.pvs", demoName: "AlarisGP/pvs"}, function (err, event) {
-                ncDevice.start().then(function(res){
+                ncDevice.start().then(function (res) {
                     ncDevice.connect();
                     start_tick();
                 });

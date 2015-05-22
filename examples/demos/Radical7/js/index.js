@@ -44,19 +44,15 @@ require([
         "use strict";
 
 
-
         var deviceID = "Radical";
         var deviceType = "SpO2 Monitor";
 
-        var d3 = require("d3/d3");
-        var serverLogs = [], maxLogSize = 40;
 
-
-        function parseNCUpdate(event){
+        function parseNCUpdate(event) {
 
             var from = event.from;
 
-            if (from === "Radical"){
+            if (from === "Radical") {
 
                 var res = stateParser.parse(event.message);
                 client.getWebSocket()
@@ -66,15 +62,15 @@ require([
             }
         }
 
-        function parseNCControl(event){
+        function parseNCControl(event) {
             var from = event.from;
         }
 
-        function errorMessage(event){
+        function errorMessage(event) {
             console.log("!!! " + event.message);
         }
 
-        function notifyMessage(event){
+        function notifyMessage(event) {
             console.log(">>> " + event.message);
         }
 
@@ -87,6 +83,8 @@ require([
         ncDevice.addListener("notify", notifyMessage);
 
 
+        var d3 = require("d3/d3");
+        var serverLogs = [], maxLogSize = 40;
 
         var client = PVSioWebClient.getInstance();
         //create a collapsible panel using the pvsiowebclient instance
@@ -333,7 +331,7 @@ require([
                 d3.select(".demo-splash").style("display", "none");
                 d3.select(".content").style("display", "block");
                 ncDevice.start().then(
-                    function(res){
+                    function (res) {
                         ncDevice.connect();
                     });
             });
@@ -345,6 +343,5 @@ require([
         });
 
         client.connectToServer();
-
 
     });

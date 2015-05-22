@@ -28,7 +28,7 @@ define(function (require, exports, module) {
         return this;
     }
 
-    NCMonitor.prototype.connect = function () {
+    NCMonitor.prototype.start = function () {
         return new Promise(function (resolve, reject) {
             nc_websocket_monitor = new WebSocket(_this.url);
             /*
