@@ -43,6 +43,27 @@ require([
                 onMessageReceived);
         }
     }
+
+    function errorMessage(event){
+        console.log("!!! " + event.message);
+    }
+
+    function notifyMessage(event){
+        console.log(">>> " + event.message);
+    }
+
+
+    var ncDevice = new NCDevice({id: deviceID, type: deviceType});
+    ncDevice.addListener("update", parseNCUpdate);
+    ncDevice.addListener("error", errorMessage);
+    ncDevice.addListener("notify", notifyMessage);
+
+    var ncMonitor = new NCMonitor({});
+    ncMonitor.addListener("error", errorMessage);
+    ncMonitor.addListener("notify", notifyMessage);
+
+
+
     function start_tick () {
         if (!tick) {
             tick = setInterval(function () {
@@ -56,12 +77,6 @@ require([
             tick = null;
         }
     }
-
-
-    var ncDevice = new NCDevice({id: deviceID, type: deviceType});
-    ncDevice.addListener("update", parseNCUpdate);
-
-    var ncMonitor = new NCMonitor({});
 
     function logOnDiv(msg, logger) {
         var p = $("<p>", {class: "console_element"});

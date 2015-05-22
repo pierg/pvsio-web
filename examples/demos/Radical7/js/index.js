@@ -66,17 +66,25 @@ require([
             }
         }
 
-        function parseNCOrchestrate(event){
-
+        function parseNCControl(event){
             var from = event.from;
+        }
 
+        function errorMessage(event){
+            console.log("!!! " + event.message);
+        }
+
+        function notifyMessage(event){
+            console.log(">>> " + event.message);
         }
 
 
         var ncDevice = new NCDevice({id: deviceID, type: deviceType});
 
         ncDevice.addListener("update", parseNCUpdate);
-        ncDevice.addListener("orchestrate", parseNCOrchestrate);
+        ncDevice.addListener("control", parseNCControl);
+        ncDevice.addListener("error", errorMessage);
+        ncDevice.addListener("notify", notifyMessage);
 
 
 

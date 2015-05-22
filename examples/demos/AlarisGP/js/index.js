@@ -65,21 +65,29 @@ require([
             }
         }
 
-        function parseNCOrchestrate(event) {
-
+        function parseNCControl(event) {
             var from = event.from;
 
             if (event.message === "click_btn_pause") {
                 alaris.btn_pause.click();
             }
+        }
 
+        function errorMessage(event){
+            console.log("!!! " + event.message);
+        }
+
+        function notifyMessage(event){
+            console.log(">>> " + event.message);
         }
 
 
         var ncDevice = new NCDevice({id: deviceID, type: deviceType});
 
         ncDevice.addListener("update", parseNCUpdate);
-        ncDevice.addListener("orchestrate", parseNCOrchestrate);
+        ncDevice.addListener("control", parseNCControl);
+        ncDevice.addListener("error", errorMessage);
+        ncDevice.addListener("notify", notifyMessage);
 
 
         var serverLogs = [], maxLogSize = 40;
