@@ -161,15 +161,6 @@ define(function (require, exports, module) {
         }
     }
 
-    //if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
-    //        replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-    //        replace(/(?:^|:|,)(?:\s*\[)+/g, ''))){
-    //    return true;
-    //}
-    //else{
-    //    return false;
-    //}
-
     /**
      * Callback function when a message is received from the nc websocket
      * @param event
