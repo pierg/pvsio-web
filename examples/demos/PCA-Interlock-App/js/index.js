@@ -278,16 +278,16 @@ require([
                 // start ICE Network Controller (NCEE) & connect ICE supervisor to it
                 startNetworkController().then(function (res) {
                     ncMonitor.connect().then(function (res) {
-                        ncDevice.connect().then(function (res) {
-                            ncDevice.turnON();
+                        ncDevice.start().then(function (res) {
+                            ncDevice.connect();
                             start_tick();
                         }).catch(function (err) { console.log(err); });
-                    }).catch(function (err) { console.log(err); });                                      
+                    }).catch(function (err) { console.log(err); });
                 }).catch(function (err) {
                     // FIXME: receiving error when glassfish is already running
                     ncMonitor.connect().then(function (res) {
-                        ncDevice.connect().then(function (res) {
-                            ncDevice.turnON();
+                        ncDevice.start().then(function (res) {
+                            ncDevice.connect();
                             start_tick();
                         }).catch(function (err) { console.log(err); });
                     }).catch(function (err) { console.log(err); });                                   

@@ -324,9 +324,9 @@ require([
                 client.getWebSocket().sendGuiAction("init(0);", onMessageReceived);
                 d3.select(".demo-splash").style("display", "none");
                 d3.select(".content").style("display", "block");
-                ncDevice.connect().then(
+                ncDevice.start().then(
                     function(res){
-                        ncDevice.turnON();
+                        ncDevice.connect();
                     });
             });
         }).addListener("WebSocketConnectionClosed", function (e) {

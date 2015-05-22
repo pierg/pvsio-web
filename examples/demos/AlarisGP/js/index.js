@@ -603,8 +603,8 @@ require([
             console.log("web socket connected");
             //start pvs process
             client.getWebSocket().startPVSProcess({name: "main.pvs", demoName: "AlarisGP/pvs"}, function (err, event) {
-                ncDevice.connect().then(function(res){
-                    ncDevice.turnON();
+                ncDevice.start().then(function(res){
+                    ncDevice.connect();
                     start_tick();
                 });
             });

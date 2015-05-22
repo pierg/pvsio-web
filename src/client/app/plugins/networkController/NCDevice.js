@@ -40,7 +40,7 @@ define(function (require, exports, module) {
     var deviceON = false;
     var _this;
 
-    NCDevice.prototype.connect = function () {
+    NCDevice.prototype.start = function () {
         return new Promise(function (resolve, reject) {
             nc_websocket_device = new WebSocket(_this.url);
             /*
@@ -89,10 +89,10 @@ define(function (require, exports, module) {
     };
 
 
-    NCDevice.prototype.turnON = function(to, message) {
+    NCDevice.prototype.connect = function(to, message) {
         if(!deviceON){
             var DeviceAction = {
-                action: "turnON",
+                action: "connect",
                 deviceID: _this.deviceID,
             };
             nc_websocket_device.send(JSON.stringify(DeviceAction));
@@ -102,10 +102,10 @@ define(function (require, exports, module) {
         }
     };
 
-    NCDevice.prototype.turnOFF = function(to, message) {
+    NCDevice.prototype.disconnect = function(to, message) {
         if(deviceON){
             var DeviceAction = {
-                action: "turnOFF",
+                action: "disconnect",
                 deviceID: _this.deviceID,
             };
             nc_websocket_device.send(JSON.stringify(DeviceAction));
