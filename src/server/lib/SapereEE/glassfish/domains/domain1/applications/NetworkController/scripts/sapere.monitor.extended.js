@@ -174,7 +174,9 @@ function onMessageReceivedSapere(event) {
                 class: 'connection',
             });
             var connections = $('connection');
-            setInterval(function() { connections.connections('update') }, 2000);
+            setInterval(function () {
+                connections.connections('update')
+            }, 2000);
         }
 
         /**
@@ -191,7 +193,9 @@ function onMessageReceivedSapere(event) {
                 class: 'connection',
             });
             var connections = $('connection');
-            setInterval(function() { connections.connections('update') }, 2000);
+            setInterval(function () {
+                connections.connections('update')
+            }, 2000);
 
         }
 

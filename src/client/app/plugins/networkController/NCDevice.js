@@ -124,7 +124,7 @@ define(function (require, exports, module) {
                 msg: message
             };
             var DeviceAction = {
-                action: "orchestrate",
+                action: "update",
                 deviceID: _this.deviceID,
                 message: payload
             };

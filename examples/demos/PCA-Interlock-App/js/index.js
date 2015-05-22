@@ -237,6 +237,11 @@ require([
     }    
     
     function startNetworkController() {
+        // To use external NetworkController
+        return new Promise(function (resolve, reject) {
+            resolve(msg);
+        });
+
         var msg = "Starting ICE Network Controller...";
         console.log(msg);
         return new Promise(function (resolve, reject) {
@@ -274,6 +279,7 @@ require([
                 startNetworkController().then(function (res) {
                     ncMonitor.connect().then(function (res) {
                         ncDevice.connect().then(function (res) {
+                            ncDevice.turnON();
                             start_tick();
                         }).catch(function (err) { console.log(err); });
                     }).catch(function (err) { console.log(err); });                                      
