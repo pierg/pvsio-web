@@ -25,10 +25,10 @@ define(function (require, exports, module) {
      */
     function NCDevice(device, opt) {
         opt = opt || {};
-        this.url = opt.url || "ws://localhost:8080/NetworkController/actions";
+        this.url = opt.url || "ws://localhost:8080/NetworkController/devices";
         this.deviceID = device.id;
         this.deviceType = device.type;
-        this.deviceDescription = device.description || (device.type + "" + device.id);
+        this.deviceDescription = device.description || (device.type + " " + device.id);
         eventDispatcher(this);
         _this = this;
         return this;
@@ -76,13 +76,13 @@ define(function (require, exports, module) {
         if(nc_websocket_device != null) {
             if (!deviceAdded) {
                 _this.fire({type: "notify", message: "-> adding " + _this.deviceID});
-                var SupervisorAction = {
+                var Action = {
                     action: "add",
                     deviceID: _this.deviceID,
                     type: _this.deviceType,
                     description: _this.deviceDescription
                 };
-                nc_websocket_device.send(JSON.stringify(SupervisorAction));
+                nc_websocket_device.send(JSON.stringify(Action));
             }
             else {
                 _this.fire({type: "error", message: _this.deviceID + " already added"});

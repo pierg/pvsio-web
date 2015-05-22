@@ -23,7 +23,7 @@ require([
     "widgets/ButtonActionsQueue"
 ], function (PVSioWebClient, stateParser, NCDevice, NCMonitor, PatientMonitorDisplay, TripleDisplay, ButtonActionsQueue) {
 
-    var deviceID = "Supervisor_ID";
+    var deviceID = "Supervisor";
     var deviceType = "Supervisor";
     //var deviceDescription = "Supervisor";
 
